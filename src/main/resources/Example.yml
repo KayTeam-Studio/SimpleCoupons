@@ -1,0 +1,17 @@
+item:
+  material: "PAPER"
+  display-name: "&eSuper Coupon"
+  lore:
+    - "&7"
+    - "&eRewards:"
+    - "  &b*&a500 XP"
+    - "  &b*&a1000 $"
+    - "  &b*&aDiamond Sword x1"
+rewards:
+  xp: 500
+  money: 1000
+  items:
+    diamond_sword:
+      material: "DIAMOND_SWORD"
+    diamondasd_sword:
+      material: "DIAMOND_SWORD"

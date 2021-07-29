@@ -1,0 +1,10 @@
+name: SimpleCoupons
+main: org.kayteam.simplecoupons.SimpleCoupons
+version: 1.0
+authors: [segu23, SirOswaldo]
+website: https://kayteam.org
+softdepend: [Vault, PlaceholderAPI]
+commands:
+  simplecoupons:
+    aliases: [sc]
+    permission: simplecoupons.use

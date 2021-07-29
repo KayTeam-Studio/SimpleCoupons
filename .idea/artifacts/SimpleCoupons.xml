@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SimpleCoupons">
+    <output-path>$PROJECT_DIR$/../../SERVER PLUGIN TESTS/plugins</output-path>
+    <root id="archive" name="SimpleCoupons.jar">
+      <element id="module-output" name="SimpleCoupons" />
+      <element id="library" level="project" name="item-nbt-api-plugin-2.8.0" />
+    </root>
+  </artifact>
+</component>
