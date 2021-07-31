@@ -11,7 +11,5 @@ rewards:
   xp: 500
   money: 1000
   items:
-    diamond_sword:
-      material: "DIAMOND_SWORD"
-    diamondasd_sword:
+    '0':
       material: "DIAMOND_SWORD"

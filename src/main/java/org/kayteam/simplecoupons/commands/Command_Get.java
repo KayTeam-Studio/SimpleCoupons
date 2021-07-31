@@ -18,5 +18,22 @@
 
 package org.kayteam.simplecoupons.commands;
 
+import org.bukkit.entity.Player;
+import org.kayteam.simplecoupons.SimpleCoupons;
+
 public class Command_Get {
+
+    private SimpleCoupons plugin;
+
+    public Command_Get(SimpleCoupons plugin) {
+        this.plugin = plugin;
+    }
+
+    public void getCoupon(Player player, String couponName){
+        if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
+            plugin.getCouponManager().giveCoupon(couponName, player);
+        }else{
+            plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
+        }
+    }
 }

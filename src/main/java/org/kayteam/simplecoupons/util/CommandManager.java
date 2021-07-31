@@ -16,27 +16,29 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.util;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 
-public class Command_Give {
+public class CommandManager {
 
     private SimpleCoupons plugin;
 
-    public Command_Give(SimpleCoupons plugin) {
+    public CommandManager(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void giveCoupon(Player giver, String target, String couponName){
-        if(Bukkit.getServer().getPlayer(target) != null){
-            if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
-            }else{
-                plugin.getMessagesYaml().sendMessage(giver, "coupon.invalid");
-            }
+    public boolean playerHasPerm(Player player, String permission){
+        if(player.hasPermission(permission)){
+            return true;
+        }else{
+            plugin.getMessagesYaml().sendMessage(player, "no-permissions");
+            return false;
         }
+    }
+
+    public void insufficientArgs(Player player, String usage){
+        plugin.getMessagesYaml().sendMessage(player, "insufficient-args", new String[][]{{"%usage%", usage}});
     }
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021 segu23
+ *   Copyright (C) 2021 KayTeam
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,29 +18,30 @@
 
 package org.kayteam.simplecoupons.util;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.kayteam.simplecoupons.SimpleCoupons;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 public class KayTeam {
 
-    public static void sendBrandMessage(String state, SimpleCoupons plugin){
+    public static void sendBrandMessage(JavaPlugin javaPlugin, String state){
         List<String> message = new ArrayList<>();
         message.add("");
         message.add("&f>>");
-        message.add("&f>> &6"+plugin.getDescription().getName()+" "+state+".");
-        message.add("&f>> &6Version &f"+plugin.getDescription().getVersion());
+        message.add("&f>> &6" + javaPlugin.getDescription().getName()+" "+state);
+        message.add("&f>> &6Version &f" + javaPlugin.getDescription().getVersion());
         message.add("&f>>");
         message.add("&f>> &6Developed by KayTeam © 2020 - " + Calendar.getInstance().get(Calendar.YEAR) + ". All rights reserved.");
-        message.add("&f>> &f(&o" + plugin.getDescription().getWebsite() + "&f)");
+        message.add("&f>> &f" + javaPlugin.getDescription().getWebsite());
         message.add("&f>>");
         message.add("");
         for(String line : message){
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', line));
+            javaPlugin.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', line));
         }
     }
+
 }

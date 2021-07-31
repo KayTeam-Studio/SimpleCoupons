@@ -1,1 +1,82 @@
-a: "a"
+menu:
+  list:
+    title: "Coupon List"
+    rows: 1
+    items:
+      fill:
+        material: GRAY_STAINED_GLASS_PANE
+        display-name: "&f"
+      close:
+        material: BARRIER
+        display-name: "&cClose menu"
+        lore:
+          - '&f'
+          - '&7Click to close this menu'
+      information:
+        material: PAPER
+        display-name: "&6Information"
+        lore:
+          - '&f'
+          - ' &7- &aCoupons: &2%coupons_amount%'
+      coupon:
+        material: MAP
+        display-name: "&9%coupon_name%"
+        lore:
+          - '&f'
+          - ' &7- &aMoney: &2%coupon_money%'
+          - ' &7- &aXP: &2%coupon_xp%'
+          - ' &7- &aItems: &2%coupon_items%'
+          - ' &7- &aMessages: &2%coupon_messages%'
+          - ' &7- &aCommands: &2%coupon_commands%'
+      next-page:
+        material: ARROW
+        display-name: "&6Next page"
+      previous-page:
+        material: ARROW
+        display-name: "&6Previous page"
+  edit:
+    title: "Editing &o%coupon_name%"
+    items:
+      close:
+        material: BARRIER
+        display-name: "&cClose"
+        lore:
+          - "&f"
+          - " &f- &7Left Click to close this menu."
+      delete:
+        material: REDSTONE_BLOCK
+        display-name: "&4Delete Coupon"
+        lore:
+          - "&f"
+          - " &f- &7Left Click to delete this coupon."
+      money:
+        material: GOLD_INGOT
+        display-name: "&6Change money reward"
+        lore:
+          - "&f"
+          - "&aActual reward: &2%coupon_money%"
+          - "&f"
+          - " &f- &7Left Click to change that reward."
+      xp:
+        material: EXPERIENCE_BOTTLE
+        display-name: "&6Change XP reward"
+        lore:
+          - "&f"
+          - "&aActual reward: &2%coupon_xp%"
+          - "&f"
+          - " &f- &7Left Click to change that reward."
+  delete:
+    title: "Do you want to delete this coupon?"
+    items:
+      confirm:
+        material: GREEN_WOOL
+        display-name: "&aDelete Coupon"
+        lore:
+          - "&f"
+          - " &f- &7Left Click to confirm."
+      cancel:
+        material: RED_WOOL
+        display-name: "&cCancel"
+        lore:
+          - "&f"
+          - " &f- &7Left Click to cancel."

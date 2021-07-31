@@ -4,7 +4,10 @@ version: 1.0
 authors: [segu23, SirOswaldo]
 website: https://kayteam.org
 softdepend: [Vault, PlaceholderAPI]
+api-version: 1.13
 commands:
   simplecoupons:
     aliases: [sc]
-    permission: simplecoupons.use
+permissions:
+  simplecoupons.admin:
+    children: [simplecoupons.get, simplecoupons.give, simplecoupons.reload, simplecoupons.help, simplecoupons.edit]

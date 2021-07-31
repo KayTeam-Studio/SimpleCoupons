@@ -18,25 +18,31 @@
 
 package org.kayteam.simplecoupons.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.simplecoupons.coupon.Coupon;
+import org.kayteam.simplecoupons.inventories.CouponsMenu;
+import org.kayteam.simplecoupons.util.Yaml;
 
-public class Command_Give {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+public class Command_List {
 
     private SimpleCoupons plugin;
 
-    public Command_Give(SimpleCoupons plugin) {
+    public Command_List(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void giveCoupon(Player giver, String target, String couponName){
-        if(Bukkit.getServer().getPlayer(target) != null){
-            if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
-            }else{
-                plugin.getMessagesYaml().sendMessage(giver, "coupon.invalid");
-            }
+    public void sendCouponList(Player player, int page){
+        Map<String, Coupon> coupons = plugin.getCouponManager().getCoupons();
+        List<Object> couponList = new ArrayList<>();
+        for(String coupon : coupons.keySet()){
+            couponList.add(coupons.get(coupon));
         }
+        plugin.getPagesInventoryManager().openInventory(player, new CouponsMenu(plugin));
     }
 }

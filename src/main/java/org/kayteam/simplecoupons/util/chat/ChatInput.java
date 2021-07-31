@@ -16,27 +16,25 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.util.chat;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.kayteam.simplecoupons.SimpleCoupons;
 
-public class Command_Give {
+import java.util.HashMap;
 
-    private SimpleCoupons plugin;
+public abstract class ChatInput {
 
-    public Command_Give(SimpleCoupons plugin) {
-        this.plugin = plugin;
+    private HashMap<String, Object> objects = new HashMap<>();
+
+    public ChatInput(HashMap<String, Object> objects) {
+        this.objects = objects;
     }
 
-    public void giveCoupon(Player giver, String target, String couponName){
-        if(Bukkit.getServer().getPlayer(target) != null){
-            if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
-            }else{
-                plugin.getMessagesYaml().sendMessage(giver, "coupon.invalid");
-            }
-        }
+    public HashMap<String, Object> getObjects() {
+        return objects;
     }
+
+    public abstract boolean onChatInput(Player player, String input);
+
+    public abstract void onPlayerSneak(Player player);
 }

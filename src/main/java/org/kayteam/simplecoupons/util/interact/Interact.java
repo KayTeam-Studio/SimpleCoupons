@@ -16,27 +16,14 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.util.interact;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.kayteam.simplecoupons.SimpleCoupons;
+import org.bukkit.inventory.ItemStack;
 
-public class Command_Give {
+public abstract class Interact {
 
-    private SimpleCoupons plugin;
+    public abstract boolean onInteract(Player player, ItemStack input);
 
-    public Command_Give(SimpleCoupons plugin) {
-        this.plugin = plugin;
-    }
-
-    public void giveCoupon(Player giver, String target, String couponName){
-        if(Bukkit.getServer().getPlayer(target) != null){
-            if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
-            }else{
-                plugin.getMessagesYaml().sendMessage(giver, "coupon.invalid");
-            }
-        }
-    }
+    public abstract void onPlayerSneak(Player player);
 }

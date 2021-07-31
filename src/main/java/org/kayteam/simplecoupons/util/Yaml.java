@@ -59,6 +59,7 @@ public class Yaml {
         }
         return fileConfiguration;
     }
+
     public void reloadFileConfiguration() {
         if (fileConfiguration == null) {
             file = new File(dir, name + ".yml");
@@ -69,20 +70,24 @@ public class Yaml {
                 }
             }
             try{
-                if (file.createNewFile()) {
-                    javaPlugin.getLogger().info("The file '" + name +".yml' has been created.");
+                if(!file.exists()){
+                    if (file.createNewFile()) {
+                        javaPlugin.getLogger().info("The file '" + name +".yml' has been created.");
+                    }
                 }
             } catch (IOException e){}
         }
         try{
             fileConfiguration = YamlConfiguration.loadConfiguration(file);
-        }catch (Exception e){
-        }
-        if (javaPlugin.getResource(name + ".yml") != null){
-            Reader defConfigStream = new InputStreamReader(Objects.requireNonNull(javaPlugin.getResource(name + ".yml")), StandardCharsets.UTF_8);
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-            fileConfiguration.setDefaults(defConfig);
-            saveFileConfiguration();
+        }catch (Exception e){}
+        if(file.length() == 0){
+            if (javaPlugin.getResource(name + ".yml") != null){
+                Reader defConfigStream = new InputStreamReader(Objects.requireNonNull(javaPlugin.getResource(name + ".yml")), StandardCharsets.UTF_8);
+                YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+                fileConfiguration.setDefaults(defConfig);
+                saveFileConfiguration();
+                saveWithOtherFileConfiguration(defConfig);
+            }
         }
     }
     public void saveFileConfiguration() {
@@ -237,10 +242,22 @@ public class Yaml {
     public double getDouble(String path, double def) { return fileConfiguration.getDouble(path, def); }
 
     public ItemStack getItemStack(String path) {
-        Material material = Material.getMaterial(getString(path + ".material"));
+        Material material = Material.getMaterial(getString(path + ".material").toUpperCase());
         int amount = getInt(path + ".amount", 1);
+        // MaterialData
+        short data = -1;
+        if (contains(path + ".data")) {
+            if (isInt(path + ".data")) {
+                data = (short) getInt(path + ".data");
+            }
+        }
         if (material != null) {
-            ItemStack itemStack = new ItemStack(material, amount);
+            ItemStack itemStack;
+            if (data != -1) {
+                itemStack = new ItemStack(material, amount, data);
+            } else {
+                itemStack = new ItemStack(material, amount);
+            }
             ItemMeta itemMeta = itemStack.getItemMeta();
             if (itemMeta != null) {
                 // DisplayName
@@ -260,19 +277,13 @@ public class Yaml {
                     }
                 }
                 // ItemFlag
-                if (contains(path + ".item-flag")) {
-                    if (fileConfiguration.isList(path + ".item-flag")) {
-                        List<String> flags = fileConfiguration.getStringList(path + ".item-flag");
+                if (contains(path + ".flags")) {
+                    if (fileConfiguration.isList(path + ".flags")) {
+                        List<String> flags = fileConfiguration.getStringList(path + ".flags");
                         for (String flag:flags) {
-                            ItemFlag itemFlag = ItemFlag.valueOf(flag);
+                            ItemFlag itemFlag = ItemFlag.valueOf(flag.toUpperCase());
                             itemMeta.addItemFlags(itemFlag);
                         }
-                    }
-                }
-                // CustomModelData
-                if (contains(path + ".custom-model-data")) {
-                    if (isInt(path + ".custom-model-data")) {
-                        itemMeta.setCustomModelData(getInt(path + ".custom-model-data"));
                     }
                 }
             }
@@ -281,10 +292,22 @@ public class Yaml {
             if (contains(path + ".enchantments")) {
                 Set<String> names = fileConfiguration.getConfigurationSection(path + ".enchantments").getValues(false).keySet();
                 for (String name:names) {
-                    Enchantment enchantment = Enchantment.getByName(name);
+                    Enchantment enchantment = Enchantment.getByName(name.toUpperCase());
                     if (enchantment != null) {
                         itemStack.addUnsafeEnchantment(enchantment, getInt(path + ".enchantments." + name));
                     }
+                }
+            }
+            // Durability
+            if (contains(path + ".durability")) {
+                if (isInt(path + ".durability")) {
+                    itemStack.setDurability((short) getInt(path + ".durability"));
+                }
+            }
+            // CustomModelData
+            if (contains(path + ".custom-model-data")) {
+                if (isInt(path + ".custom-model-data")) {
+                    itemMeta.setCustomModelData(getInt(path + ".custom-model-data"));
                 }
             }
             return itemStack;
@@ -305,7 +328,7 @@ public class Yaml {
         if (itemMeta != null) {
             // DisplayName
             if (itemMeta.hasDisplayName()) {
-                set(path + ".display-name", itemMeta.getDisplayName());
+                set(path + ".name", itemMeta.getDisplayName());
             }
             // Lore
             if (itemMeta.hasLore()) {
@@ -317,11 +340,7 @@ public class Yaml {
                 for (ItemFlag flag:itemMeta.getItemFlags()) {
                     flags.add(flag.toString());
                 }
-                set(path + ".item-flag", flags);
-            }
-            // CustomModelData
-            if (itemMeta.hasCustomModelData()) {
-                set(path + ".custom-model-data", itemMeta.getCustomModelData());
+                set(path + ".flags", flags);
             }
             // Enchantments
             if (!item.getEnchantments().isEmpty()) {
@@ -329,8 +348,51 @@ public class Yaml {
                     set(path + ".enchantments." + enchantment.getName(), item.getEnchantments().get(enchantment));
                 }
             }
+            if(item.getData().getData()!=0){
+                set(path + ".data", item.getData().getData());
+            }
+            if(item.getDurability() != item.getType().getMaxDurability()){
+                set(path + ".durability", item.getDurability());
+            }
         }
         saveFileConfiguration();
+    }
+
+    public static ItemStack replace(ItemStack itemStack, Player player, String[][] replacements) {
+        ItemStack item = new ItemStack(itemStack);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            if (meta.hasDisplayName()) {
+                String displayName = meta.getDisplayName();
+                for (String[] values:replacements){
+                    displayName = displayName.replaceAll(values[0], values[1]);
+                }
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                    displayName = PlaceholderAPI.setPlaceholders(player, displayName);
+                }
+                displayName = ChatColor.translateAlternateColorCodes('&', displayName);
+                meta.setDisplayName(displayName);
+            }
+            if (meta.hasLore()) {
+                List<String> lore = meta.getLore();
+                List<String> newLore = new ArrayList<>();
+                if (lore != null) {
+                    for (String line:lore) {
+                        for (String[] values:replacements){
+                            line = line.replaceAll(values[0], values[1]);
+                        }
+                        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                            line = PlaceholderAPI.setPlaceholders(player, line);
+                        }
+                        line = ChatColor.translateAlternateColorCodes('&', line);
+                        newLore.add(line);
+                    }
+                    meta.setLore(newLore);
+                }
+            }
+        }
+        item.setItemMeta(meta);
+        return item;
     }
 
     public static ItemStack replace(ItemStack itemStack, String[][] replacements) {

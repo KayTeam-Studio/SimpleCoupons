@@ -23,31 +23,38 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.kayteam.simplecoupons.commands.Command_SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
+import org.kayteam.simplecoupons.inventories.CouponsMenu;
 import org.kayteam.simplecoupons.listeners.PlayerInteract;
-import org.kayteam.simplecoupons.util.KayTeam;
-import org.kayteam.simplecoupons.util.Metrics;
-import org.kayteam.simplecoupons.util.UpdateChecker;
-import org.kayteam.simplecoupons.util.Yaml;
-
-import java.io.File;
+import org.kayteam.simplecoupons.util.*;
+import org.kayteam.simplecoupons.util.chat.ChatInputManager;
+import org.kayteam.simplecoupons.util.interact.InteractManager;
+import org.kayteam.simplecoupons.util.inventory.MenuInventoryManager;
+import org.kayteam.simplecoupons.util.inventory.PagesInventoryManager;
 
 public class SimpleCoupons extends JavaPlugin {
 
     private CouponManager couponManager = new CouponManager(this);
+    private CommandManager commandManager = new CommandManager(this);
     private static Economy econ = null;
-    private Yaml Example = new Yaml(this, "coupons", "Example");
     private Yaml config = new Yaml(this, "config");
+    private Yaml messages = new Yaml(this, "messages");
 
     @Override
     public void onEnable() {
-        KayTeam.sendBrandMessage("enabled", this);
+        KayTeam.sendBrandMessage(this, "&aEnabled");
+        registerFiles();
         enablebStats();
         setupEconomy();
         registerCommands();
+        couponManager.loadCoupons();
+        couponsMenu = new CouponsMenu(this);
         registerListeners();
-        registerFiles();
-        loadCoupons();
-        checkUpdates();
+        /*
+        updateChecker = new UpdateChecker(this, 0);
+        if (updateChecker.getUpdateCheckResult().equals(UpdateChecker.UpdateCheckResult.OUT_DATED)) {
+            updateChecker.sendOutDatedMessage(getServer().getConsoleSender());
+        }
+        */
     }
 
     private UpdateChecker updateChecker;
@@ -55,28 +62,46 @@ public class SimpleCoupons extends JavaPlugin {
         return updateChecker;
     }
 
-    private void checkUpdates() {
-    /*
-        updateChecker = new UpdateChecker(this, 94734);
-        if (updateChecker.getUpdateCheckResult().equals(UpdateChecker.UpdateCheckResult.OUT_DATED)) {
-            updateChecker.sendOutDatedMessage(getServer().getConsoleSender());
-        }
-    */
+    private final InteractManager interactManager = new InteractManager();
+    public InteractManager getInteractManager() {
+        return interactManager;
     }
 
-    private void loadCoupons() {
-        for (File file : Yaml.getFolderFiles(getDataFolder()+"/coupons")) {
-            couponManager.loadCoupon((file.getName()).replaceAll(".yml", ""));
-        }
+    private final ChatInputManager chatInputManager = new ChatInputManager();
+    public ChatInputManager getChatInputManager() {
+        return chatInputManager;
+    }
+
+    private final MenuInventoryManager menuInventoryManager = new MenuInventoryManager();
+    public MenuInventoryManager getMenuInventoryManager() {
+        return menuInventoryManager;
+    }
+
+    private final PagesInventoryManager pagesInventoryManager = new PagesInventoryManager();
+    public PagesInventoryManager getPagesInventoryManager() {
+        return pagesInventoryManager;
+    }
+
+    private CouponsMenu couponsMenu;
+    public CouponsMenu getCouponsMenu() {
+        return couponsMenu;
     }
 
     private void registerFiles() {
-        Example.registerFileConfiguration();
+        if(Yaml.getFolderFiles(getDataFolder()+"/coupons").size()==0){
+            Yaml Example = new Yaml(this, "coupons", "Example");
+            Example.registerFileConfiguration();
+        }
         config.registerFileConfiguration();
+        messages.registerFileConfiguration();
     }
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerInteract(this), this);
+        getServer().getPluginManager().registerEvents(pagesInventoryManager, this);
+        getServer().getPluginManager().registerEvents(menuInventoryManager, this);
+        getServer().getPluginManager().registerEvents(chatInputManager, this);
+        getServer().getPluginManager().registerEvents(interactManager, this);
     }
 
     private void registerCommands() {
@@ -104,12 +129,24 @@ public class SimpleCoupons extends JavaPlugin {
         return couponManager;
     }
 
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
+
     public static Economy getEconomy() {
         return econ;
     }
 
+    public Yaml getMessagesYaml() {
+        return messages;
+    }
+
+    public Yaml getConfigYaml() {
+        return config;
+    }
+
     @Override
     public void onDisable() {
-        KayTeam.sendBrandMessage("disabled", this);
+        KayTeam.sendBrandMessage(this, "&cDisabled");
     }
 }

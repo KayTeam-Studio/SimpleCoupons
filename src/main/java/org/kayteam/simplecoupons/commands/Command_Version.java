@@ -18,5 +18,19 @@
 
 package org.kayteam.simplecoupons.commands;
 
+import org.bukkit.entity.Player;
+import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.simplecoupons.util.Yaml;
+
 public class Command_Version {
+
+    private SimpleCoupons plugin;
+
+    public Command_Version(SimpleCoupons plugin) {
+        this.plugin = plugin;
+    }
+
+    public void getVersion(Player player){
+        Yaml.sendSimpleMessage(player, "&aSimple&2Coupons &8> &fVersion: &9%version%", new String[][]{{"%version%", plugin.getDescription().getVersion()}});;
+    }
 }

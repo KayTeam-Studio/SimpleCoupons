@@ -26,6 +26,7 @@ import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.util.Logs;
 import org.kayteam.simplecoupons.util.Yaml;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,9 +46,16 @@ public class CouponManager {
         return coupons;
     }
 
+    public void loadCoupons() {
+        for (File file : Yaml.getFolderFiles(plugin.getDataFolder()+"/coupons")) {
+            loadCoupon((file.getName()).replaceAll(".yml", ""));
+        }
+    }
+
     public void loadCoupon(String couponName){
         Yaml couponYaml = new Yaml(plugin, "coupons", couponName);
         couponYaml.registerFileConfiguration();
+        couponYaml.reloadFileConfiguration();
         if(couponYaml.getItemStack("item") != null){
             Coupon coupon = new Coupon();
             Map<Action, List<Object>> couponActions = new HashMap<>();
@@ -137,7 +145,6 @@ public class CouponManager {
             coupon.setActions(couponActions);
             getCoupons().put(couponName, coupon);
             Logs.sendCorrectCouponLoadLog(plugin, couponName);
-            plugin.getLogger().info(coupon.getActions().toString());
         }else{
             Logs.sendGetItemLogError(plugin,"coupons/"+couponName);
         }
@@ -154,12 +161,54 @@ public class CouponManager {
         }
     }
 
+    public void saveCoupon(Coupon coupon){
+        if(coupon != null){
+            Yaml couponYaml = new Yaml(plugin, "coupons", coupon.getName());
+            couponYaml.registerFileConfiguration();
+            couponYaml.setItemStack("item", coupon.getCouponItem());
+            if(coupon.getActions().get(Action.MONEY) != null){
+                couponYaml.set("rewards.money", (Integer) new ArrayList<>(coupon.getActions().get(Action.MONEY)).get(0));
+            }
+            if(coupon.getActions().get(Action.XP) != null){
+                couponYaml.set("rewards.xp", (Integer) new ArrayList<>(coupon.getActions().get(Action.XP)).get(0));
+            }
+            if(coupon.getActions().get(Action.ITEM) != null){
+                int i = 0;
+                for(Object item : coupon.getActions().get(Action.ITEM)){
+                    couponYaml.setItemStack("rewards.items."+i, (ItemStack) item);
+                    i++;
+                }
+            }
+            if(coupon.getActions().get(Action.COMMAND) != null){
+                couponYaml.set("rewards.commands", new ArrayList<>(coupon.getActions().get(Action.COMMAND)));
+            }
+            if(coupon.getActions().get(Action.MESSAGE) != null){
+                couponYaml.set("rewards.message", new ArrayList<>(coupon.getActions().get(Action.MESSAGE)));
+            }
+            couponYaml.saveFileConfiguration();
+        }
+    }
+
+    public boolean deleteCoupon(Coupon coupon){
+        Yaml couponYaml = new Yaml(plugin, "coupons", coupon.getName());
+        if(couponYaml.deleteFileConfiguration()){
+            unloadCoupon(coupon);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void unloadCoupon(Coupon coupon){
+        getCoupons().remove(coupon.getName(), coupon);
+    }
+
     public void executeCouponActions(Coupon coupon, Player player){
         for(Action action : coupon.getActions().keySet()){
             switch (action){
                 case XP:{
                     try{
-                        player.giveExp((Integer) coupon.getActions().get(Action.XP).get(0));
+                        player.giveExpLevels((Integer) coupon.getActions().get(Action.XP).get(0));
                     }catch (Exception e){
                         Logs.sendGiveXPLogError(plugin,"coupons/"+coupon.getName(), player.getName());
                     }
