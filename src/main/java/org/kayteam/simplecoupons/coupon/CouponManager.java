@@ -41,10 +41,10 @@ public class CouponManager {
     }
 
     Map<String, Coupon> coupons = new HashMap<>();
-
     public Map<String, Coupon> getCoupons() {
         return coupons;
     }
+
 
     public void loadCoupons() {
         for (File file : Yaml.getFolderFiles(plugin.getDataFolder()+"/coupons")) {
@@ -52,6 +52,10 @@ public class CouponManager {
         }
     }
 
+    /**
+     *
+     * @param couponName Name of the coupon what do you want to load
+     */
     public void loadCoupon(String couponName){
         Yaml couponYaml = new Yaml(plugin, "coupons", couponName);
         couponYaml.registerFileConfiguration();
@@ -62,6 +66,8 @@ public class CouponManager {
             coupon.setName(couponName);
             coupon.setCouponItem(couponYaml.getItemStack("item"));
             if(couponYaml.contains("rewards")){
+
+                // LOAD XP
                 if(couponYaml.contains("rewards.xp")){
                     if(couponYaml.isInt("rewards.xp")){
                         try{
@@ -75,6 +81,8 @@ public class CouponManager {
                         Logs.sendLoadLogError(plugin,"rewards/xp", "coupons/"+couponName);
                     }
                 }
+
+                // LOAD MONEY
                 if(couponYaml.contains("rewards.money")){
                     if(couponYaml.isInt("rewards.money")){
                         try{
@@ -88,6 +96,8 @@ public class CouponManager {
                         Logs.sendLoadLogError(plugin,"rewards/money", "coupons/"+couponName);
                     }
                 }
+
+                // LOAD ITEMS
                 if(couponYaml.contains("rewards.items")){
                     List<Object> items = new ArrayList<>();
                     for(String itemName : couponYaml.getFileConfiguration().getConfigurationSection("rewards.items").getKeys(false)){
@@ -103,6 +113,8 @@ public class CouponManager {
                     }
                     couponActions.put(Action.ITEM, items);
                 }
+
+                // LOAD MESSAGES
                 if(couponYaml.contains("rewards.messages")){
                     if(couponYaml.isList("rewards.messages")){
                         try{
@@ -122,6 +134,8 @@ public class CouponManager {
                         Logs.sendLoadLogError(plugin,"rewards/messages", "coupons/"+couponName);
                     }
                 }
+
+                // LOAD COMMANDS
                 if(couponYaml.contains("rewards.commands")){
                     if(couponYaml.isList("rewards.commands")){
                         try{
@@ -150,6 +164,11 @@ public class CouponManager {
         }
     }
 
+    /**
+     *
+     * @param couponName Name of the coupon what do you want to give
+     * @param player Player target who receive the coupon
+     */
     public void giveCoupon(String couponName, Player player){
         if(getCoupons().get(couponName).getCouponItem() != null){
             ItemStack item = getCoupons().get(couponName).getCouponItem();
@@ -161,37 +180,64 @@ public class CouponManager {
         }
     }
 
+    /**
+     *
+     * @param coupon Coupon object what you want to save into coupon YML file
+     */
     public void saveCoupon(Coupon coupon){
         if(coupon != null){
             Yaml couponYaml = new Yaml(plugin, "coupons", coupon.getName());
             couponYaml.registerFileConfiguration();
+            couponYaml.set("item", null);
+            couponYaml.set("rewards", null);
             couponYaml.setItemStack("item", coupon.getCouponItem());
+
+            // SAVE MONEY
             if(coupon.getActions().get(Action.MONEY) != null){
-                couponYaml.set("rewards.money", (Integer) new ArrayList<>(coupon.getActions().get(Action.MONEY)).get(0));
+                List<Object> list = new ArrayList<>(coupon.getActions().get(Action.MONEY));
+                couponYaml.set("rewards.money", (Integer) list.get(0));
             }
+
+            // SAVE XP
             if(coupon.getActions().get(Action.XP) != null){
-                couponYaml.set("rewards.xp", (Integer) new ArrayList<>(coupon.getActions().get(Action.XP)).get(0));
+                List<Object> list = new ArrayList<>(coupon.getActions().get(Action.XP));
+                couponYaml.set("rewards.xp", (Integer) list.get(0));
             }
+
+            // SAVE ITEMS
             if(coupon.getActions().get(Action.ITEM) != null){
                 int i = 0;
                 for(Object item : coupon.getActions().get(Action.ITEM)){
-                    couponYaml.setItemStack("rewards.items."+i, (ItemStack) item);
-                    i++;
+                    if((ItemStack) item != null){
+                        couponYaml.setItemStack("rewards.items."+i, (ItemStack) item);
+                        i++;
+                    }
                 }
             }
+
+            // SAVE COMMANDS
             if(coupon.getActions().get(Action.COMMAND) != null){
                 couponYaml.set("rewards.commands", new ArrayList<>(coupon.getActions().get(Action.COMMAND)));
             }
+
+            // SAVE MESSAGES
             if(coupon.getActions().get(Action.MESSAGE) != null){
-                couponYaml.set("rewards.message", new ArrayList<>(coupon.getActions().get(Action.MESSAGE)));
+                couponYaml.set("rewards.messages", new ArrayList<>(coupon.getActions().get(Action.MESSAGE)));
             }
+
             couponYaml.saveFileConfiguration();
         }
     }
 
+    /**
+     *
+     * @param coupon Coupon object what do you want to delete
+     * @return If the coupon could be deleted
+     */
     public boolean deleteCoupon(Coupon coupon){
         Yaml couponYaml = new Yaml(plugin, "coupons", coupon.getName());
-        if(couponYaml.deleteFileConfiguration()){
+        if(couponYaml.existFileConfiguration()){
+            couponYaml.deleteFileConfiguration();
             unloadCoupon(coupon);
             return true;
         }else{
@@ -199,10 +245,19 @@ public class CouponManager {
         }
     }
 
+    /**
+     *
+     * @param coupon Coupon object what do you want to unload from RAM
+     */
     public void unloadCoupon(Coupon coupon){
         getCoupons().remove(coupon.getName(), coupon);
     }
 
+    /**
+     *
+     * @param coupon Coupon object what do you want to execute actions
+     * @param player Target player on which actions will be executed
+     */
     public void executeCouponActions(Coupon coupon, Player player){
         for(Action action : coupon.getActions().keySet()){
             switch (action){
@@ -225,24 +280,22 @@ public class CouponManager {
                 case ITEM:{
                     for(Object item : coupon.getActions().get(Action.ITEM)){
                         try{
-                            player.getInventory().addItem((ItemStack) item);
-                        }catch (Exception e){
-                            try{
+                            if(player.getInventory().firstEmpty() != -1){
+                                player.getInventory().addItem((ItemStack) item);
+                            }else{
                                 player.getLocation().getWorld().dropItem(player.getLocation(), (ItemStack) item);
-                            }catch (Exception ex){
-                                Logs.sendGiveItemLogError(plugin, item.toString(), "coupons/"+coupon.getName(),player.getName());
                             }
+                        }catch (Exception ex){
+                            Logs.sendGiveItemLogError(plugin, item.toString(), "coupons/"+coupon.getName(),player.getName());
                         }
                     }
                     break;
                 }
                 case MESSAGE:{
-                    for(Object messageLine : coupon.getActions().get(Action.MESSAGE)){
-                        try{
-                            Yaml.sendSimpleMessage(player, coupon.getActions().get(Action.MESSAGE));
-                        }catch (Exception e){
-                            Logs.sendMessageLogError(plugin,"coupons/"+coupon.getName(), player.getName());
-                        }
+                    try{
+                        Yaml.sendSimpleMessage(player, coupon.getActions().get(Action.MESSAGE), new String[][]{{"%player%", player.getName()}});
+                    }catch (Exception e){
+                        Logs.sendMessageLogError(plugin,"coupons/"+coupon.getName(), player.getName());
                     }
                     break;
                 }

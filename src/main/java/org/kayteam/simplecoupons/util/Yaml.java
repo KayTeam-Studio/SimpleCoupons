@@ -312,13 +312,7 @@ public class Yaml {
             }
             return itemStack;
         } else {
-            ItemStack error = new ItemStack(Material.DIRT);
-            ItemMeta errorMeta = error.getItemMeta();
-            if (errorMeta != null) {
-                errorMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cERROR"));
-            }
-            error.setItemMeta(errorMeta);
-            return new ItemStack(Material.DIRT);
+            return null;
         }
     }
     public void setItemStack(String path, ItemStack item) {

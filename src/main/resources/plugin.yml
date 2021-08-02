@@ -10,4 +10,4 @@ commands:
     aliases: [sc]
 permissions:
   simplecoupons.admin:
-    children: [simplecoupons.get, simplecoupons.give, simplecoupons.reload, simplecoupons.help, simplecoupons.edit]
+    children: [simplecoupons.get, simplecoupons.give, simplecoupons.reload, simplecoupons.help, simplecoupons.edit, simplecoupons.delete, simplecoupons.list]

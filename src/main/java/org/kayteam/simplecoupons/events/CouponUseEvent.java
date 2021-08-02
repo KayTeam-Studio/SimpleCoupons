@@ -23,33 +23,30 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
+import org.jetbrains.annotations.NotNull;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 
 public class CouponUseEvent extends Event implements Cancellable {
 
-    private final SimpleCoupons plugin;
-    private static HandlerList handlerList;
+    private static final HandlerList handlerList = new HandlerList();
 
     private boolean cancelled = false;
 
     private final Player player;
     private final String couponName;
-    private EquipmentSlot equipmentSlot;
+    private final EquipmentSlot equipmentSlot;
 
-    public CouponUseEvent(SimpleCoupons plugin, Player player, String couponName, EquipmentSlot equipmentSlot) {
-        this.plugin = plugin;
+    /**
+     *
+     * @param player Player who use the coupon
+     * @param couponName Coupon name.
+     * @param equipmentSlot Slot of the player inventory where the coupon item was.
+     */
+    public CouponUseEvent(Player player, String couponName, EquipmentSlot equipmentSlot) {
         this.player = player;
         this.couponName = couponName;
         this.equipmentSlot = equipmentSlot;
-        executeActions();
-    }
-
-
-    private void executeActions(){
-        CouponManager couponManager = plugin.getCouponManager();
-        couponManager.executeCouponActions(couponManager.getCoupons().get(couponName), player);
-        player.getInventory().getItem(equipmentSlot).setAmount(player.getInventory().getItem(equipmentSlot).getAmount()-1);
     }
 
     public EquipmentSlot getEquipmentSlot() {
@@ -66,6 +63,10 @@ public class CouponUseEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
+        return handlerList;
+    }
+
+    public static HandlerList getHandlerList() {
         return handlerList;
     }
 

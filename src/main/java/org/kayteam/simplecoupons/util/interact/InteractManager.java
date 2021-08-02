@@ -45,7 +45,7 @@ public class InteractManager implements Listener {
             event.setCancelled(true);
             // Getting the Interact Input
             Interact interactInput = inputs.get(player.getName());
-            // If onChatInput method return true
+            // If onInteractInput method return true
             if (interactInput.onInteract(player, event.getItem())) {
                 // Removing Interact Input
                 inputs.remove(player.getName());

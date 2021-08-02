@@ -16,7 +16,12 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.util.inventoryitems;
 
-public class Command_Info {
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+
+public abstract class InventoryItems {
+
+    public abstract boolean onInventoryClose(Player player, Inventory input);
 }

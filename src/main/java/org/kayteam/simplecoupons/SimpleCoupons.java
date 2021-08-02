@@ -21,15 +21,19 @@ package org.kayteam.simplecoupons;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.kayteam.simplecoupons.commands.Command_Delete;
 import org.kayteam.simplecoupons.commands.Command_SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.inventories.CouponsMenu;
+import org.kayteam.simplecoupons.listeners.CouponUse;
 import org.kayteam.simplecoupons.listeners.PlayerInteract;
 import org.kayteam.simplecoupons.util.*;
 import org.kayteam.simplecoupons.util.chat.ChatInputManager;
 import org.kayteam.simplecoupons.util.interact.InteractManager;
+import org.kayteam.simplecoupons.util.inventory.ConfirmInventory;
 import org.kayteam.simplecoupons.util.inventory.MenuInventoryManager;
 import org.kayteam.simplecoupons.util.inventory.PagesInventoryManager;
+import org.kayteam.simplecoupons.util.inventoryitems.InventoryItemsManager;
 
 public class SimpleCoupons extends JavaPlugin {
 
@@ -48,6 +52,7 @@ public class SimpleCoupons extends JavaPlugin {
         registerCommands();
         couponManager.loadCoupons();
         couponsMenu = new CouponsMenu(this);
+        commandDelete = new Command_Delete(this);
         registerListeners();
         /*
         updateChecker = new UpdateChecker(this, 0);
@@ -60,6 +65,16 @@ public class SimpleCoupons extends JavaPlugin {
     private UpdateChecker updateChecker;
     public UpdateChecker getUpdateChecker() {
         return updateChecker;
+    }
+
+    private Command_Delete commandDelete;
+    public Command_Delete getCommandDelete() {
+        return commandDelete;
+    }
+
+    private final InventoryItemsManager inventoryItemsManager = new InventoryItemsManager();
+    public InventoryItemsManager getInventoryItemsManager() {
+        return inventoryItemsManager;
     }
 
     private final InteractManager interactManager = new InteractManager();
@@ -88,7 +103,12 @@ public class SimpleCoupons extends JavaPlugin {
     }
 
     private void registerFiles() {
-        if(Yaml.getFolderFiles(getDataFolder()+"/coupons").size()==0){
+        try{
+            if(Yaml.getFolderFiles(getDataFolder()+"/coupons").size()==0){
+                Yaml Example = new Yaml(this, "coupons", "Example");
+                Example.registerFileConfiguration();
+            }
+        }catch (Exception e){
             Yaml Example = new Yaml(this, "coupons", "Example");
             Example.registerFileConfiguration();
         }
@@ -98,10 +118,13 @@ public class SimpleCoupons extends JavaPlugin {
 
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerInteract(this), this);
+        getServer().getPluginManager().registerEvents(new CouponUse(this), this);
         getServer().getPluginManager().registerEvents(pagesInventoryManager, this);
         getServer().getPluginManager().registerEvents(menuInventoryManager, this);
         getServer().getPluginManager().registerEvents(chatInputManager, this);
         getServer().getPluginManager().registerEvents(interactManager, this);
+        getServer().getPluginManager().registerEvents(commandDelete, this);
+        getServer().getPluginManager().registerEvents(inventoryItemsManager, this);
     }
 
     private void registerCommands() {

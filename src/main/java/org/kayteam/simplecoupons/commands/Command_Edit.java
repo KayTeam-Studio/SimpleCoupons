@@ -18,23 +18,25 @@
 
 package org.kayteam.simplecoupons.commands;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Action;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.coupon.CouponManager;
-import org.kayteam.simplecoupons.inventories.CouponsMenu;
+import org.kayteam.simplecoupons.inventories.MessagesMenu;
+import org.kayteam.simplecoupons.util.Color;
 import org.kayteam.simplecoupons.util.Yaml;
 import org.kayteam.simplecoupons.util.chat.ChatInput;
 import org.kayteam.simplecoupons.util.interact.Interact;
 import org.kayteam.simplecoupons.util.inventory.MenuItem;
+import org.kayteam.simplecoupons.util.inventoryitems.InventoryItems;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Command_Edit {
 
@@ -46,16 +48,16 @@ public class Command_Edit {
 
     public void editCoupon(Player player, Coupon coupon){
         if(coupon!=null){
-            HashMap<Integer, MenuItem> items = new HashMap<>();
             Yaml config = plugin.getConfigYaml();
             Yaml messages = plugin.getMessagesYaml();
             CouponManager couponManager = plugin.getCouponManager();
+            HashMap<Integer, MenuItem> items = new HashMap<>();
             // FILL
             for (int i = 0; i<45; i++){
                 items.put(i, new MenuItem() {
                     @Override
                     public ItemStack getItem() {
-                        return plugin.getConfigYaml().getItemStack("menu.items.fill");
+                        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
                     }
                 });
             }
@@ -63,7 +65,7 @@ public class Command_Edit {
             items.put(28, new MenuItem() {
                 @Override
                 public ItemStack getItem() {
-                    return plugin.getConfigYaml().getItemStack("menu.items.close");
+                    return plugin.getConfigYaml().getItemStack("menu.list.items.close");
                 }
 
                 @Override
@@ -138,12 +140,10 @@ public class Command_Edit {
                         public boolean onChatInput(Player player, String input) {
                             try{
                                 int newMoney = Integer.parseInt(input);
-                                coupon.getActions().get(Action.MONEY).clear();
                                 List<Object> money = new ArrayList<>();
                                 money.add(newMoney);
-                                coupon.getActions().get(Action.MONEY).set(0, money);
+                                coupon.getActions().put(Action.MONEY, money);
                                 couponManager.saveCoupon(coupon);
-                                couponManager.loadCoupon(coupon.getName());
                                 Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
                                     @Override
                                     public void run() {
@@ -193,12 +193,10 @@ public class Command_Edit {
                         public boolean onChatInput(Player player, String input) {
                             try{
                                 int newXP = Integer.parseInt(input);
-                                coupon.getActions().get(Action.XP).clear();
                                 List<Object> xp = new ArrayList<>();
                                 xp.add(newXP);
-                                coupon.getActions().get(Action.XP).set(0, xp);
+                                coupon.getActions().put(Action.XP, xp);
                                 couponManager.saveCoupon(coupon);
-                                couponManager.loadCoupon(coupon.getName());
                                 Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
                                     @Override
                                     public void run() {
@@ -229,21 +227,252 @@ public class Command_Edit {
             items.put(16, new MenuItem() {
                 @Override
                 public ItemStack getItem() {
-                    return null;
+                    try{
+                        return Yaml.replace(plugin.getConfigYaml().getItemStack("menu.edit.items.items"),
+                                new String[][]{{"%coupon_items%", String.valueOf(new ArrayList<>(coupon.getActions().get(Action.ITEM)).size())}});
+                    }catch (Exception e){
+                        return Yaml.replace(plugin.getConfigYaml().getItemStack("menu.edit.items.items"),
+                                new String[][]{{"%coupon_items%", "0"}});
+                    }
+                }
+
+                @Override
+                public void onLeftClick(Player player) {
+                    player.closeInventory();
+                    Inventory inventory = Bukkit.createInventory(null, 54, plugin.getConfigYaml().getString("menu.items.title"));
+                    if(coupon.getActions().get(Action.ITEM) != null){
+                        for(Object item : coupon.getActions().get(Action.ITEM)){
+                            if((ItemStack) item != null){
+                                inventory.addItem((ItemStack) item);
+                            }
+                        }
+                    }
+                    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            player.openInventory(inventory);
+                        }
+                    }, 1);
+                    plugin.getInventoryItemsManager().addInteract(player, new InventoryItems() {
+                        @Override
+                        public boolean onInventoryClose(Player player, Inventory input) {
+                            ItemStack[] content = input.getContents();
+                            List<Object> newItems = new ArrayList<>();
+                            for(ItemStack item : content){
+                                if(item != null){
+                                    if(!item.getType().isAir()){
+                                        newItems.add(item);
+                                    }
+                                }
+                            }
+                            coupon.getActions().put(Action.ITEM, newItems);
+                            couponManager.saveCoupon(coupon);
+                            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                }
+                            }, 3);
+                            return true;
+                        }
+                    }, true);
                 }
             });
             // COMMANDS
             items.put(30, new MenuItem() {
                 @Override
                 public ItemStack getItem() {
-                    return null;
+                    try{
+                        return Yaml.replace(config.getItemStack("menu.edit.items.commands"),
+                                new String[][]{{"%coupon_commands%", String.valueOf(coupon.getActions().get(Action.COMMAND).size())}});
+                    }catch (Exception e){
+                        return Yaml.replace(config.getItemStack("menu.edit.items.commands"), new String[][]{{"%coupon_commands%", "0"}});
+                    }
+                }
+
+                @Override
+                public void onLeftClick(Player player) {
+                    player.closeInventory();
+                    messages.sendMessage(player, "edit.chat",
+                            new String[][]{{"%path%", coupon.getName()+"/commands"}, {"%value%", "valid command"}});
+                    plugin.getChatInputManager().addChatInput(player, new ChatInput(new HashMap<>()) {
+                        @Override
+                        public boolean onChatInput(Player player, String input) {
+                            List<Object> commands = new ArrayList<>();
+                            if(coupon.getActions().get(Action.COMMAND) !=null){
+                                commands.addAll(coupon.getActions().get(Action.COMMAND));
+                            }
+                            commands.add(input);
+                            coupon.getActions().put(Action.COMMAND, commands);
+                            couponManager.saveCoupon(coupon);
+                            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                }
+                            }, 1);
+                            return true;
+                        }
+
+                        @Override
+                        public void onPlayerSneak(Player player) {
+                            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                }
+                            }, 1);
+                        }
+                    });
+                }
+
+                @Override
+                public void onRightClick(Player player) {
+                    HashMap<Integer, MenuItem> items = new HashMap<>();
+                    if(coupon.getActions().get(Action.COMMAND) != null){
+                        int i = 0;
+                        for(Object line : coupon.getActions().get(Action.COMMAND)){
+                            NBTItem item = new NBTItem(Yaml.replace(config.getItemStack("menu.texts-menu.items.commands"),
+                                    new String[][]{{"%command%", (String) line}}));
+                            item.setInteger("command-line", i);
+                            i++;
+                        }
+                        player.closeInventory();
+                        plugin.getPagesInventoryManager().openInventory(player, new MessagesMenu(plugin, ));
+                    plugin.getMenuInventoryManager().openInventory(player, config.getString("menu.texts-menu.title"), 54, items);
+                    Inventory inventory = Bukkit.createInventory(null, 54, Color.convert(config.getString("menu.texts-menu.title")
+                            .replaceAll("%path%", "commands")));
+                        player.openInventory(inventory);
+                        plugin.getInventoryItemsManager().addInteract(player, new InventoryItems() {
+                            @Override
+                            public boolean onInventoryClose(Player player, Inventory input) {
+                                List<Integer> newLinesIndex = new ArrayList<>();
+                                for(ItemStack item : input.getContents()){
+                                    if(item != null){
+                                        if(!item.getType().isAir()){
+                                            NBTItem nbtItem = new NBTItem(item);
+                                            if(nbtItem.getInteger("command-line") != null){
+                                                newLinesIndex.add(nbtItem.getInteger("command-line"));
+                                            }
+                                        }
+                                    }
+                                }
+                                List<Object> newCommands = new ArrayList<>();
+                                for(Integer index : newLinesIndex){
+                                    List<Object> oldLines = coupon.getActions().get(Action.COMMAND);
+                                    if(oldLines.get(index) != null){
+                                        newCommands.add(oldLines.get(index));
+                                    }
+                                }
+                                coupon.getActions().put(Action.COMMAND, newCommands);
+                                couponManager.saveCoupon(coupon);
+                                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                    }
+                                }, 3);
+                                return true;
+                            }
+                        }, false);
+                    }
                 }
             });
             // MESSAGES
             items.put(32, new MenuItem() {
                 @Override
                 public ItemStack getItem() {
-                    return null;
+                    try{
+                        return Yaml.replace(config.getItemStack("menu.edit.items.messages"),
+                                new String[][]{{"%coupon_messages%", String.valueOf(coupon.getActions().get(Action.MESSAGE).size())}});
+                    }catch (Exception e){
+                        return Yaml.replace(config.getItemStack("menu.edit.items.messages"), new String[][]{{"%coupon_messages%", "0"}});
+                    }
+                }
+
+                @Override
+                public void onLeftClick(Player player) {
+                    player.closeInventory();
+                    messages.sendMessage(player, "edit.chat",
+                            new String[][]{{"%path%", coupon.getName()+"/messages"}, {"%value%", "custom message"}});
+                    plugin.getChatInputManager().addChatInput(player, new ChatInput(new HashMap<>()) {
+                        @Override
+                        public boolean onChatInput(Player player, String input) {
+                            List<Object> messages = new ArrayList<>();
+                            if(coupon.getActions().get(Action.MESSAGE) !=null){
+                                messages.addAll(coupon.getActions().get(Action.MESSAGE));
+                            }
+                            messages.add(input);
+                            coupon.getActions().put(Action.MESSAGE, messages);
+                            couponManager.saveCoupon(coupon);
+                            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                }
+                            }, 1);
+                            return true;
+                        }
+
+                        @Override
+                        public void onPlayerSneak(Player player) {
+                            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                @Override
+                                public void run() {
+                                    plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                }
+                            }, 1);
+                        }
+                    });
+                }
+
+                @Override
+                public void onRightClick(Player player) {
+                    Inventory inventory = Bukkit.createInventory(null, 54, Color.convert(config.getString("menu.texts-menu.title")
+                            .replaceAll("%path%", "messages")));
+                    if(coupon.getActions().get(Action.MESSAGE) != null){
+                        int i = 0;
+                        for(Object line : coupon.getActions().get(Action.MESSAGE)){
+                            NBTItem item = new NBTItem(Yaml.replace(config.getItemStack("menu.texts-menu.items.messages"),
+                                    new String[][]{{"%message%", (String) line}}));
+                            item.setInteger("message-line", i);
+                            inventory.addItem(item.getItem());
+                            i++;
+                        }
+                        player.openInventory(inventory);
+                        plugin.getInventoryItemsManager().addInteract(player, new InventoryItems() {
+                            @Override
+                            public boolean onInventoryClose(Player player, Inventory input) {
+                                List<Integer> newLinesIndex = new ArrayList<>();
+                                for(ItemStack item : input.getContents()){
+                                    if(item != null){
+                                        if(!item.getType().isAir()){
+                                            NBTItem nbtItem = new NBTItem(item);
+                                            if(nbtItem.getInteger("message-line") != null){
+                                                newLinesIndex.add(nbtItem.getInteger("message-line"));
+                                            }
+                                        }
+                                    }
+                                }
+                                List<Object> newMessages = new ArrayList<>();
+                                for(Integer index : newLinesIndex){
+                                    List<Object> oldLines = coupon.getActions().get(Action.MESSAGE);
+                                    if(oldLines.get(index) != null){
+                                        newMessages.add(oldLines.get(index));
+                                    }
+                                }
+                                coupon.getActions().put(Action.MESSAGE, newMessages);
+                                couponManager.saveCoupon(coupon);
+                                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
+                                    }
+                                }, 3);
+                                return true;
+                            }
+                        }, false);
+                    }
                 }
             });
             // DELETE COUPON
@@ -255,7 +484,12 @@ public class Command_Edit {
 
                 @Override
                 public void onLeftClick(Player player) {
-
+                    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.getServer().dispatchCommand(player, "sc delete "+coupon.getName());
+                        }
+                    }, 1);
                 }
             });
             player.closeInventory();

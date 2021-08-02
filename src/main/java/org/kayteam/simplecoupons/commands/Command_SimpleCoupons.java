@@ -67,6 +67,19 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                     }
                     break;
                 }
+                case "delete":{
+                    if(commandManager.playerHasPerm(player, "simplecoupons.delete")){
+                        if(args.length>1){
+                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                            if(coupon != null){
+                                plugin.getCommandDelete().openInventory(player, coupon);
+                            }
+                        }else{
+                            commandManager.insufficientArgs(player, "sc delete <coupon-name>");
+                        }
+                    }
+                    break;
+                }
                 case "edit":{
                     if(commandManager.playerHasPerm(player, "simplecoupons.edit")){
                         if(args.length>1){
@@ -126,18 +139,17 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         List<String> tabs = new ArrayList<>();
         if(args.length==1){
+            tabs.add("edit");
+            tabs.add("delete");
             tabs.add("get");
             tabs.add("give");
-            tabs.add("edit");
             tabs.add("list");
             tabs.add("reload");
             tabs.add("help");
             tabs.add("version");
         }else if(args.length==2){
-            if(args[0].equalsIgnoreCase("get") || args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("edit")){
-                for(String coupon : plugin.getCouponManager().getCoupons().keySet()){
-                    tabs.add(coupon);
-                }
+            if(args[0].equalsIgnoreCase("get") || args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("delete")){
+                tabs.addAll(plugin.getCouponManager().getCoupons().keySet());
             }
         }else if(args.length>2){
             return null;

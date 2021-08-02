@@ -69,7 +69,7 @@ public class CouponsMenu extends PagesInventory {
                 xp = String.valueOf(coupon.getActions().get(Action.XP).get(0));
             }catch (Exception e){}
             try{
-                items = String.valueOf(coupon.getActions().get(Action.ITEM).size());
+                items = String.valueOf(new ArrayList<>(coupon.getActions().get(Action.ITEM)).size());
             }catch (Exception e){}
             try{
                 messages = String.valueOf(coupon.getActions().get(Action.MESSAGE).size());

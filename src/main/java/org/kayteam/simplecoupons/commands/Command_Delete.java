@@ -85,12 +85,12 @@ public class Command_Delete extends ConfirmInventory {
 
     @Override
     public ItemStack getCancelButton() {
-        return plugin.getConfigYaml().getItemStack("menu.delete.cancel");
+        return plugin.getConfigYaml().getItemStack("menu.delete.items.cancel");
     }
 
     @Override
     public ItemStack getAcceptButton() {
-        return plugin.getConfigYaml().getItemStack("menu.delete.confirm");
+        return plugin.getConfigYaml().getItemStack("menu.delete.items.confirm");
     }
 
     @Override
