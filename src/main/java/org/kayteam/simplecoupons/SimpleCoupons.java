@@ -30,9 +30,7 @@ import org.kayteam.simplecoupons.listeners.PlayerInteract;
 import org.kayteam.simplecoupons.util.*;
 import org.kayteam.simplecoupons.util.chat.ChatInputManager;
 import org.kayteam.simplecoupons.util.interact.InteractManager;
-import org.kayteam.simplecoupons.util.inventory.ConfirmInventory;
 import org.kayteam.simplecoupons.util.inventory.MenuInventoryManager;
-import org.kayteam.simplecoupons.util.inventory.PagesInventoryManager;
 import org.kayteam.simplecoupons.util.inventoryitems.InventoryItemsManager;
 
 public class SimpleCoupons extends JavaPlugin {
@@ -47,19 +45,17 @@ public class SimpleCoupons extends JavaPlugin {
     public void onEnable() {
         KayTeam.sendBrandMessage(this, "&aEnabled");
         registerFiles();
-        enablebStats();
         setupEconomy();
         registerCommands();
         couponManager.loadCoupons();
         couponsMenu = new CouponsMenu(this);
         commandDelete = new Command_Delete(this);
         registerListeners();
-        /*
-        updateChecker = new UpdateChecker(this, 0);
+        enablebStats();
+        updateChecker = new UpdateChecker(this, 95021);
         if (updateChecker.getUpdateCheckResult().equals(UpdateChecker.UpdateCheckResult.OUT_DATED)) {
             updateChecker.sendOutDatedMessage(getServer().getConsoleSender());
         }
-        */
     }
 
     private UpdateChecker updateChecker;
@@ -92,11 +88,6 @@ public class SimpleCoupons extends JavaPlugin {
         return menuInventoryManager;
     }
 
-    private final PagesInventoryManager pagesInventoryManager = new PagesInventoryManager();
-    public PagesInventoryManager getPagesInventoryManager() {
-        return pagesInventoryManager;
-    }
-
     private CouponsMenu couponsMenu;
     public CouponsMenu getCouponsMenu() {
         return couponsMenu;
@@ -119,11 +110,9 @@ public class SimpleCoupons extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerInteract(this), this);
         getServer().getPluginManager().registerEvents(new CouponUse(this), this);
-        getServer().getPluginManager().registerEvents(pagesInventoryManager, this);
         getServer().getPluginManager().registerEvents(menuInventoryManager, this);
         getServer().getPluginManager().registerEvents(chatInputManager, this);
         getServer().getPluginManager().registerEvents(interactManager, this);
-        getServer().getPluginManager().registerEvents(commandDelete, this);
         getServer().getPluginManager().registerEvents(inventoryItemsManager, this);
     }
 
@@ -134,6 +123,11 @@ public class SimpleCoupons extends JavaPlugin {
     private void enablebStats() {
         int pluginId = 12232;
         Metrics metrics = new Metrics(this, pluginId);
+        metrics.addCustomChart(new Metrics.SingleLineChart("coupons", () -> {
+            int coupons = 0;
+            coupons = getCouponManager().getCoupons().keySet().size();
+            return coupons;
+        }));
     }
 
     private boolean setupEconomy() {

@@ -10,6 +10,22 @@ item:
 rewards:
   xp: 500
   money: 1000
+  messages:
+    - "&6Hello %player%!"
+    - "&2You claimed the example coupon!"
+  commands:
+    - "say %player% is amazing!"
+    - "time set day"
   items:
     '0':
       material: "DIAMOND_SWORD"
+      display-name: "&eExample Sword!"
+      lore:
+        - "&f"
+        - "&6Epic!"
+    '1':
+      material: "DIAMOND"
+      display-name: "&eExample Diamond!"
+      lore:
+        - "&f"
+        - "&6Epic 2!"

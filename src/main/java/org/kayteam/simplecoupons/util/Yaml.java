@@ -322,7 +322,7 @@ public class Yaml {
         if (itemMeta != null) {
             // DisplayName
             if (itemMeta.hasDisplayName()) {
-                set(path + ".name", itemMeta.getDisplayName());
+                set(path + ".display-name", itemMeta.getDisplayName());
             }
             // Lore
             if (itemMeta.hasLore()) {

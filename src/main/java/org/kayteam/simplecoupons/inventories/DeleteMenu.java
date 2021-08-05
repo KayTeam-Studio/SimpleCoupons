@@ -18,24 +18,28 @@
 
 package org.kayteam.simplecoupons.inventories;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.simplecoupons.commands.Command_Edit;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.util.Yaml;
-import org.kayteam.simplecoupons.util.inventory.inventories.PagesInventory;
+import org.kayteam.simplecoupons.util.inventory.inventories.ConfirmInventory;
 
-import java.util.ArrayList;
-
-public class CouponsMenu extends PagesInventory {
+public class DeleteMenu extends ConfirmInventory {
 
     private SimpleCoupons plugin;
+    private Player player;
+    private Coupon coupon;
 
-    public CouponsMenu(SimpleCoupons plugin) {
-        super(plugin.getConfigYaml().getString("menu.list.title"), plugin.getConfigYaml().getInt("menu.list.rows"), new ArrayList<>(plugin.getCouponManager().getCoupons().values()));
+    public DeleteMenu(SimpleCoupons plugin, Player player, Coupon coupon) {
         this.plugin = plugin;
+        this.player = player;
+        this.coupon = coupon;
+    }
+
+    @Override
+    public String getTitle() {
+        return plugin.getConfigYaml().getString("menu.delete.title");
     }
 
     @Override
@@ -45,19 +49,13 @@ public class CouponsMenu extends PagesInventory {
 
     @Override
     public ItemStack getInformation() {
-        return Yaml.replace(plugin.getConfigYaml().getItemStack("menu.list.items.information"), new String[][]{{"%coupons_amount%", String.valueOf(plugin.getCouponManager().getCoupons().keySet().size())}});
-    }
-
-    @Override
-    public ItemStack getListedItem(Object objects) {
-        if(objects!=null){
-            Coupon coupon = (Coupon) objects;
+        if(coupon!=null){
             String money = String.valueOf(coupon.getMoney());
             String xp = String.valueOf(coupon.getXp());
             String items = String.valueOf(coupon.getItems().size());
             String messages = String.valueOf(coupon.getMessages().size());
             String commands = String.valueOf(coupon.getCommands().size());
-            ItemStack itemStack = plugin.getConfigYaml().getItemStack("menu.list.items.coupon");
+            ItemStack itemStack = plugin.getConfigYaml().getItemStack("menu.delete.items.coupon");
             itemStack.setType(coupon.getCouponItem().getType());
             return Yaml.replace(itemStack,
                     new String[][]{
@@ -73,41 +71,31 @@ public class CouponsMenu extends PagesInventory {
     }
 
     @Override
-    public ItemStack getNext() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.next-page");
+    public ItemStack getAccept() {
+        return plugin.getConfigYaml().getItemStack("menu.delete.items.confirm");
     }
 
     @Override
-    public ItemStack getPrevious() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.previous-page");
+    public ItemStack getCancel() {
+        return plugin.getConfigYaml().getItemStack("menu.delete.items.cancel");
     }
 
     @Override
-    public ItemStack getClose() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.close");
-    }
-
-    @Override
-    public void onRightClick(Player player, Object object) {
-        if(player.hasPermission("simplecoupons.edit")){
-            Coupon coupon = (Coupon) object;
-            if(coupon!=null){
-                player.closeInventory();
-                plugin.getMenuInventoryManager().openInventory(player, new EditMenu(plugin, coupon));
-            }
-        }
-    }
-
-    @Override
-    public void onLeftClick(Player player, Object object) {
-        Coupon coupon = (Coupon) object;
+    public void onAccept() {
         if(coupon != null){
-            Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    plugin.getServer().dispatchCommand(player, "sc get "+coupon.getName());
-                }
-            }, 1);
+            if(plugin.getCouponManager().deleteCoupon(coupon)){
+                player.closeInventory();
+                plugin.getMessagesYaml().sendMessage(player, "edit.deleted", new String[][]{{"%coupon_name%", coupon.getName()}});
+            }else{
+                plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
+            }
+        }else{
+            plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
         }
+    }
+
+    @Override
+    public void onCancel() {
+        player.closeInventory();
     }
 }

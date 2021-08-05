@@ -1,6 +1,6 @@
 name: SimpleCoupons
 main: org.kayteam.simplecoupons.SimpleCoupons
-version: 1.0
+version: 1.1
 authors: [segu23, SirOswaldo]
 website: https://kayteam.org
 softdepend: [Vault, PlaceholderAPI]
@@ -10,4 +10,12 @@ commands:
     aliases: [sc]
 permissions:
   simplecoupons.admin:
-    children: [simplecoupons.get, simplecoupons.give, simplecoupons.reload, simplecoupons.help, simplecoupons.edit, simplecoupons.delete, simplecoupons.list]
+    children:
+      - simplecoupons.create
+      - simplecoupons.delete
+      - simplecoupons.edit
+      - simplecoupons.get
+      - simplecoupons.give
+      - simplecoupons.help
+      - simplecoupons.list
+      - simplecoupons.reload

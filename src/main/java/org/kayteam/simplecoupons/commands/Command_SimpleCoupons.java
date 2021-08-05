@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.util.CommandManager;
+import org.kayteam.simplecoupons.util.Yaml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,24 +46,45 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         Player player = (Player) sender;
         CommandManager commandManager = plugin.getCommandManager();
+        Yaml messages = plugin.getMessagesYaml();
         if(args.length>0){
             switch (args[0].toLowerCase()){
                 case "get":{
-                    if(args.length>1){
-                        if(commandManager.playerHasPerm(player, "simplecoupons.get")){
-                            new Command_Get(plugin).getCoupon(player, args[1]);
+                    if(commandManager.playerHasPerm(player, "simplecoupons.get")){
+                        if(args.length > 1){
+                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                            if(coupon != null){
+                                new Command_Get(plugin).getCoupon(player, args[1]);
+                            }else{
+                                messages.sendMessage(player, "coupon.invalid");
+                            }
+                        }else{
+                            commandManager.insufficientArgs(player, "sc get <coupon-name>");
                         }
-                    }else{
-                        commandManager.insufficientArgs(player, "sc get <coupon-name>");
                     }
                     break;
                 }
                 case "give":{
                     if(commandManager.playerHasPerm(player, "simplecoupons.give")){
                         if(args.length>2){
-                            new Command_Give(plugin).giveCoupon(player, args[2], args[1]);
+                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                            if(coupon != null){
+                                new Command_Give(plugin).giveCoupon(player, args[2], args[1]);
+                            }else{
+                                messages.sendMessage(player, "coupon.invalid");
+                            }
                         }else{
                             commandManager.insufficientArgs(player, "sc give <coupon-name> <player>");
+                        }
+                    }
+                    break;
+                }
+                case "create":{
+                    if(commandManager.playerHasPerm(player, "simplecoupons.create")){
+                        if(args.length>1){
+                            new Command_Create(plugin).createCoupon(player, args[1]);
+                        }else{
+                            commandManager.insufficientArgs(player, "sc create <coupon-name>");
                         }
                     }
                     break;
@@ -72,7 +94,10 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                         if(args.length>1){
                             Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                             if(coupon != null){
-                                plugin.getCommandDelete().openInventory(player, coupon);
+                                player.closeInventory();
+                                new Command_Delete(plugin).openDeleteMenu(player, coupon);
+                            }else{
+                                messages.sendMessage(player, "coupon.invalid");
                             }
                         }else{
                             commandManager.insufficientArgs(player, "sc delete <coupon-name>");
@@ -86,6 +111,8 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                             Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                             if(coupon != null){
                                 new Command_Edit(plugin).editCoupon(player, coupon);
+                            }else{
+                                messages.sendMessage(player, "coupon.invalid");
                             }
                         }else{
                             commandManager.insufficientArgs(player, "sc edit <coupon-name>");
@@ -95,15 +122,7 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                 }
                 case "list":{
                     if(commandManager.playerHasPerm(player, "simplecoupons.list")){
-                        if(args.length>1){
-                            try{
-                                new Command_List(plugin).sendCouponList(player, Integer.parseInt(args[1]));
-                            }catch (Exception e){
-                                Bukkit.getLogger().info(e.getLocalizedMessage());
-                            }
-                        }else{
-                            new Command_List(plugin).sendCouponList(player, 1);
-                        }
+                        new Command_List(plugin).sendCouponList(player);
                     }
                     break;
                 }
@@ -141,6 +160,7 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
         if(args.length==1){
             tabs.add("edit");
             tabs.add("delete");
+            tabs.add("create");
             tabs.add("get");
             tabs.add("give");
             tabs.add("list");

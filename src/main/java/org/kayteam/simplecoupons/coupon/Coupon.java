@@ -20,6 +20,7 @@ package org.kayteam.simplecoupons.coupon;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +28,13 @@ public class Coupon {
 
     private String name;
     private ItemStack couponItem;
-    private Map<Action, List<Object>> actions;
+    private int money = 0;
+    private int xp = 0;
+    private List<String> messages = new ArrayList<>();
+    private List<String> commands = new ArrayList<>();
+    private List<ItemStack> items = new ArrayList<>();
 
-    public void setName(String name){
+    public Coupon(String name) {
         this.name = name;
     }
 
@@ -45,11 +50,43 @@ public class Coupon {
         return couponItem;
     }
 
-    public void setActions(Map<Action, List<Object>> actions){
-        this.actions = actions;
+    public int getMoney() {
+        return money;
     }
 
-    public Map<Action, List<Object>> getActions(){
-        return actions;
+    public int getXp() {
+        return xp;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public List<String> getCommands() {
+        return commands;
+    }
+
+    public List<ItemStack> getItems() {
+        return items;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public void setMessages(List<String> messages) {
+        this.messages = messages;
+    }
+
+    public void setCommands(List<String> commands) {
+        this.commands = commands;
+    }
+
+    public void setItems(List<ItemStack> items) {
+        this.items = items;
     }
 }

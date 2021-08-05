@@ -6,6 +6,10 @@ help:
   - ""
   - " &8> &6/sc get: &7Get an specified coupon."
   - " &8> &6/sc give: &7Give an specified coupon to another player."
+  - " &8> &6/sc create: &7Create coupon."
+  - " &8> &6/sc edit: &7Edit coupon by GUI."
+  - " &8> &6/sc delete: &7Delete coupon."
+  - " &8> &6/sc list: &7Show coupons."
   - " &8> &6/sc reload: &7Reload plugin files."
   - " &8> &6/sc help: &7Show information about commands."
   - " &8> &6/sc version: &7Show plugin version."
@@ -14,6 +18,7 @@ edit:
   item: "&aSimple&2Coupons &8> &aYou are now editing &f%path%&a please &oRight Click &aon &f%value%&a. Press &oShift &ato cancel that action."
   deleted: "&aSimple&2Coupons &8> &f%coupon_name% &ahas been deleted."
 coupon:
+  already-exist: "&aSimple&2Coupons &8> &cEntered coupon already exist!"
   invalid: "&aSimple&2Coupons &8> &cThe coupon entered does not exist."
   list:
     header: "&aSimple&2Coupons &8> &fPage %actual_page%/%max_pages%"

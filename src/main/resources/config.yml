@@ -41,7 +41,7 @@ menu:
           - '&f'
           - ' &f- &7Left Click to g'
   edit:
-    title: "Editing &o%coupon_name%"
+    title: "Editing coupon"
     items:
       close:
         material: BARRIER
@@ -120,8 +120,18 @@ menu:
           - " &f- &7Middle Click to delete"
           - " &f- &7Right Click move to right"
   delete:
-    title: "Do you want to delete this coupon?"
+    title: "Delete coupon?"
     items:
+      coupon:
+        material: MAP
+        display-name: "&9%coupon_name%"
+        lore:
+          - '&f'
+          - ' &f» &aMoney: &2%coupon_money%'
+          - ' &f» &aXP: &2%coupon_xp%'
+          - ' &f» &aItems: &2%coupon_items%'
+          - ' &f» &aMessages: &2%coupon_messages%'
+          - ' &f» &aCommands: &2%coupon_commands%'
       confirm:
         material: GREEN_WOOL
         display-name: "&aDelete Coupon"

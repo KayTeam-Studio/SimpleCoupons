@@ -27,10 +27,7 @@ import org.kayteam.simplecoupons.util.Logs;
 import org.kayteam.simplecoupons.util.Yaml;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CouponManager {
 
@@ -61,19 +58,14 @@ public class CouponManager {
         couponYaml.registerFileConfiguration();
         couponYaml.reloadFileConfiguration();
         if(couponYaml.getItemStack("item") != null){
-            Coupon coupon = new Coupon();
-            Map<Action, List<Object>> couponActions = new HashMap<>();
-            coupon.setName(couponName);
+            Coupon coupon = new Coupon(couponName);
             coupon.setCouponItem(couponYaml.getItemStack("item"));
             if(couponYaml.contains("rewards")){
-
                 // LOAD XP
                 if(couponYaml.contains("rewards.xp")){
                     if(couponYaml.isInt("rewards.xp")){
                         try{
-                            List<Object> xp = new ArrayList<>();
-                            xp.add(couponYaml.getInt("rewards.xp"));
-                            couponActions.put(Action.XP, xp);
+                            coupon.setXp(couponYaml.getInt("rewards.xp"));
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/xp", "coupons/"+couponName);
                         }
@@ -86,9 +78,7 @@ public class CouponManager {
                 if(couponYaml.contains("rewards.money")){
                     if(couponYaml.isInt("rewards.money")){
                         try{
-                            List<Object> money = new ArrayList<>();
-                            money.add(couponYaml.getInt("rewards.money"));
-                            couponActions.put(Action.MONEY, money);
+                            coupon.setMoney(couponYaml.getInt("rewards.money"));
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/money", "coupons/"+couponName);
                         }
@@ -99,11 +89,10 @@ public class CouponManager {
 
                 // LOAD ITEMS
                 if(couponYaml.contains("rewards.items")){
-                    List<Object> items = new ArrayList<>();
-                    for(String itemName : couponYaml.getFileConfiguration().getConfigurationSection("rewards.items").getKeys(false)){
+                    for(String itemName : Objects.requireNonNull(couponYaml.getFileConfiguration().getConfigurationSection("rewards.items")).getKeys(false)){
                         if(couponYaml.getItemStack("rewards.items."+itemName) != null){
                             try{
-                                items.add(couponYaml.getItemStack("rewards.items."+itemName));
+                                coupon.getItems().add(couponYaml.getItemStack("rewards.items."+itemName));
                             }catch (Exception e){
                                 Logs.sendLoadLogError(plugin,"rewards/items/"+itemName, "coupons/"+couponName);
                             }
@@ -111,22 +100,21 @@ public class CouponManager {
                             Logs.sendLoadLogError(plugin,"rewards/items/"+itemName, "coupons/"+couponName);
                         }
                     }
-                    couponActions.put(Action.ITEM, items);
                 }
 
                 // LOAD MESSAGES
                 if(couponYaml.contains("rewards.messages")){
                     if(couponYaml.isList("rewards.messages")){
                         try{
-                            couponActions.put(Action.MESSAGE, new ArrayList<>(couponYaml.getStringList("rewards.messages")));
+                            coupon.setMessages(couponYaml.getStringList("rewards.messages"));
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/messages", "coupons/"+couponName);
                         }
                     }else if(couponYaml.isString("rewards.messages")){
                         try{
-                            List<Object> messages = new ArrayList<>();
+                            List<String> messages = new ArrayList<>();
                             messages.add(couponYaml.getString("rewards.messages"));
-                            couponActions.put(Action.MESSAGE, messages);
+                            coupon.setMessages(messages);
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/messages", "coupons/"+couponName);
                         }
@@ -139,15 +127,15 @@ public class CouponManager {
                 if(couponYaml.contains("rewards.commands")){
                     if(couponYaml.isList("rewards.commands")){
                         try{
-                            couponActions.put(Action.COMMAND, new ArrayList<>(couponYaml.getStringList("rewards.commands")));
+                            coupon.setCommands(couponYaml.getStringList("rewards.commands"));
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/commands", "coupons/"+couponName);
                         }
                     }else if(couponYaml.isString("rewards.commands")){
                         try{
-                            List<Object> commands = new ArrayList<>();
+                            List<String> commands = new ArrayList<>();
                             commands.add(couponYaml.getString("rewards.commands"));
-                            couponActions.put(Action.COMMAND, commands);
+                            coupon.setCommands(commands);
                         }catch (Exception e){
                             Logs.sendLoadLogError(plugin,"rewards/commands", "coupons/"+couponName);
                         }
@@ -156,7 +144,6 @@ public class CouponManager {
                     }
                 }
             }
-            coupon.setActions(couponActions);
             getCoupons().put(couponName, coupon);
             Logs.sendCorrectCouponLoadLog(plugin, couponName);
         }else{
@@ -193,37 +180,25 @@ public class CouponManager {
             couponYaml.setItemStack("item", coupon.getCouponItem());
 
             // SAVE MONEY
-            if(coupon.getActions().get(Action.MONEY) != null){
-                List<Object> list = new ArrayList<>(coupon.getActions().get(Action.MONEY));
-                couponYaml.set("rewards.money", (Integer) list.get(0));
-            }
+            couponYaml.set("rewards.money", coupon.getMoney());
 
             // SAVE XP
-            if(coupon.getActions().get(Action.XP) != null){
-                List<Object> list = new ArrayList<>(coupon.getActions().get(Action.XP));
-                couponYaml.set("rewards.xp", (Integer) list.get(0));
-            }
+            couponYaml.set("rewards.xp", coupon.getXp());
 
             // SAVE ITEMS
-            if(coupon.getActions().get(Action.ITEM) != null){
-                int i = 0;
-                for(Object item : coupon.getActions().get(Action.ITEM)){
-                    if((ItemStack) item != null){
-                        couponYaml.setItemStack("rewards.items."+i, (ItemStack) item);
-                        i++;
-                    }
+            int i = 0;
+            for(ItemStack item : coupon.getItems()){
+                if(item != null){
+                    couponYaml.setItemStack("rewards.items."+i, item);
+                    i++;
                 }
             }
 
             // SAVE COMMANDS
-            if(coupon.getActions().get(Action.COMMAND) != null){
-                couponYaml.set("rewards.commands", new ArrayList<>(coupon.getActions().get(Action.COMMAND)));
-            }
+            couponYaml.set("rewards.commands", coupon.getCommands());
 
             // SAVE MESSAGES
-            if(coupon.getActions().get(Action.MESSAGE) != null){
-                couponYaml.set("rewards.messages", new ArrayList<>(coupon.getActions().get(Action.MESSAGE)));
-            }
+            couponYaml.set("rewards.messages", coupon.getMessages());
 
             couponYaml.saveFileConfiguration();
         }
@@ -258,57 +233,48 @@ public class CouponManager {
      * @param coupon Coupon object what do you want to execute actions
      * @param player Target player on which actions will be executed
      */
-    public void executeCouponActions(Coupon coupon, Player player){
-        for(Action action : coupon.getActions().keySet()){
-            switch (action){
-                case XP:{
-                    try{
-                        player.giveExpLevels((Integer) coupon.getActions().get(Action.XP).get(0));
-                    }catch (Exception e){
-                        Logs.sendGiveXPLogError(plugin,"coupons/"+coupon.getName(), player.getName());
-                    }
-                    break;
+    public void executeCouponActions(Coupon coupon, Player player) {
+
+        // GIVE XP
+        try {
+            player.giveExpLevels(coupon.getXp());
+        } catch (Exception e) {
+            Logs.sendGiveXPLogError(plugin, "coupons/" + coupon.getName(), player.getName());
+        }
+
+        // GIVE MONEY
+        try {
+            SimpleCoupons.getEconomy().depositPlayer(player, coupon.getMoney());
+        } catch (Exception e) {
+            Logs.sendGiveMoneyLogError(plugin, "coupons/" + coupon.getName(), player.getName());
+        }
+
+        // GIVE ITEMS
+        for (ItemStack item : coupon.getItems()) {
+            try {
+                if (player.getInventory().firstEmpty() != -1) {
+                    player.getInventory().addItem(item);
+                } else {
+                    Objects.requireNonNull(player.getLocation().getWorld()).dropItem(player.getLocation(), item);
                 }
-                case MONEY:{
-                    try{
-                        SimpleCoupons.getEconomy().depositPlayer(player, (Integer) coupon.getActions().get(Action.MONEY).get(0));
-                    }catch (Exception e){
-                        Logs.sendGiveMoneyLogError(plugin,"coupons/"+coupon.getName(), player.getName());
-                    }
-                    break;
-                }
-                case ITEM:{
-                    for(Object item : coupon.getActions().get(Action.ITEM)){
-                        try{
-                            if(player.getInventory().firstEmpty() != -1){
-                                player.getInventory().addItem((ItemStack) item);
-                            }else{
-                                player.getLocation().getWorld().dropItem(player.getLocation(), (ItemStack) item);
-                            }
-                        }catch (Exception ex){
-                            Logs.sendGiveItemLogError(plugin, item.toString(), "coupons/"+coupon.getName(),player.getName());
-                        }
-                    }
-                    break;
-                }
-                case MESSAGE:{
-                    try{
-                        Yaml.sendSimpleMessage(player, coupon.getActions().get(Action.MESSAGE), new String[][]{{"%player%", player.getName()}});
-                    }catch (Exception e){
-                        Logs.sendMessageLogError(plugin,"coupons/"+coupon.getName(), player.getName());
-                    }
-                    break;
-                }
-                case COMMAND:{
-                    for(Object commandLine : coupon.getActions().get(Action.COMMAND)){
-                        try{
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), (commandLine.toString()).replaceAll("%player%", player.getName()));
-                        }catch (Exception e){
-                            Logs.sendExecuteLogError(plugin, commandLine.toString(), "coupons/"+coupon.getName());
-                        }
-                    }
-                    break;
-                }
+            } catch (Exception ex) {
+                Logs.sendGiveItemLogError(plugin, item.toString(), "coupons/" + coupon.getName(), player.getName());
+            }
+        }
+
+        // SEND MESSAGES
+        try {
+            Yaml.sendSimpleMessage(player, coupon.getMessages(), new String[][]{{"%player%", player.getName()}});
+        } catch (Exception e) {
+            Logs.sendMessageLogError(plugin, "coupons/" + coupon.getName(), player.getName());
+        }
+
+        // EXECUTE COMMANDS
+        for (String commandLine : coupon.getCommands()) {
+            try {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), (commandLine).replaceAll("%player%", player.getName()));
+            } catch (Exception e) {
+                Logs.sendExecuteLogError(plugin, commandLine, "coupons/" + coupon.getName());
             }
         }
     }

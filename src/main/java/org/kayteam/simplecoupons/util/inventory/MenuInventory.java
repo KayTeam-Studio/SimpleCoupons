@@ -18,17 +18,27 @@
 
 package org.kayteam.simplecoupons.util.inventory;
 
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import java.util.HashMap;
 
-public abstract class MenuItem {
+public abstract class MenuInventory {
 
-    public abstract ItemStack getItem();
+    private final HashMap<Integer, Item> items = new HashMap<>();
 
-    public void onLeftClick(Player player) {}
-    public void onRightClick(Player player) {}
-    public void onMiddleClick(Player player) {}
-    public void onShiftLeftClick(Player player) {}
-    public void onShiftRightClick(Player player) {}
+    public abstract String getTitle();
+
+    public abstract int getRows();
+
+    public HashMap<Integer, Item> getItems() {
+        return items;
+    }
+
+    public void addMenuAction(int slot, Item item) {
+        items.put(slot, item);
+    }
+    public void addMenuActions(int[] slots, Item item) {
+        for (int slot:slots) {
+            items.put(slot, item);
+        }
+    }
 
 }
