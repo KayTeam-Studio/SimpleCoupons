@@ -18,6 +18,7 @@
 
 package org.kayteam.simplecoupons.commands;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 
@@ -29,7 +30,7 @@ public class Command_Help {
         this.plugin = plugin;
     }
 
-    public void sendHelp(Player player){
-        plugin.getMessagesYaml().sendMessage(player, "help");
+    public void sendHelp(CommandSender sender){
+        plugin.getMessagesYaml().sendMessage(sender, "help");
     }
 }

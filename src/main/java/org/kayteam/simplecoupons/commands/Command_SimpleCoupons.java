@@ -44,111 +44,147 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        Player player = (Player) sender;
         CommandManager commandManager = plugin.getCommandManager();
         Yaml messages = plugin.getMessagesYaml();
-        if(args.length>0){
-            switch (args[0].toLowerCase()){
-                case "get":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.get")){
-                        if(args.length > 1){
-                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
-                            if(coupon != null){
-                                new Command_Get(plugin).getCoupon(player, args[1]);
+        if(sender instanceof Player){
+            Player player = (Player) sender;
+            if(args.length>0){
+                switch (args[0].toLowerCase()){
+                    case "get":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.get")){
+                            if(args.length > 1){
+                                Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                                if(coupon != null){
+                                    new Command_Get(plugin).getCoupon(player, args[1]);
+                                }else{
+                                    messages.sendMessage(player, "coupon.invalid");
+                                }
                             }else{
-                                messages.sendMessage(player, "coupon.invalid");
+                                commandManager.insufficientArgs(player, "sc get <coupon-name>");
                             }
-                        }else{
-                            commandManager.insufficientArgs(player, "sc get <coupon-name>");
                         }
+                        break;
                     }
-                    break;
+                    case "give":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.give")){
+                            if(args.length>2){
+                                Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                                if(coupon != null){
+                                    new Command_Give(plugin).giveCoupon(player, args[2], args[1]);
+                                }else{
+                                    messages.sendMessage(player, "coupon.invalid");
+                                }
+                            }else{
+                                commandManager.insufficientArgs(player, "sc give <coupon-name> <player>");
+                            }
+                        }
+                        break;
+                    }
+                    case "create":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.create")){
+                            if(args.length>1){
+                                new Command_Create(plugin).createCoupon(player, args[1]);
+                            }else{
+                                commandManager.insufficientArgs(player, "sc create <coupon-name>");
+                            }
+                        }
+                        break;
+                    }
+                    case "delete":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.delete")){
+                            if(args.length>1){
+                                Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                                if(coupon != null){
+                                    player.closeInventory();
+                                    new Command_Delete(plugin).openDeleteMenu(player, coupon);
+                                }else{
+                                    messages.sendMessage(player, "coupon.invalid");
+                                }
+                            }else{
+                                commandManager.insufficientArgs(player, "sc delete <coupon-name>");
+                            }
+                        }
+                        break;
+                    }
+                    case "edit":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.edit")){
+                            if(args.length>1){
+                                Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
+                                if(coupon != null){
+                                    new Command_Edit(plugin).editCoupon(player, coupon);
+                                }else{
+                                    messages.sendMessage(player, "coupon.invalid");
+                                }
+                            }else{
+                                commandManager.insufficientArgs(player, "sc edit <coupon-name>");
+                            }
+                        }
+                        break;
+                    }
+                    case "list":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.list")){
+                            new Command_List(plugin).sendCouponList(player);
+                        }
+                        break;
+                    }
+                    case "reload":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.reload")){
+                            new Command_Reload(plugin).reloadPlugin(player);
+                        }
+                        break;
+                    }
+                    case "help":{
+                        if(commandManager.playerHasPerm(player, "simplecoupons.help")){
+                            new Command_Help(plugin).sendHelp(player);
+                        }
+                        break;
+                    }
+                    case "version":{
+                        new Command_Version(plugin).getVersion(player);
+                        break;
+                    }
+                    default:{
+                        new Command_Help(plugin).sendHelp(player);
+                        break;
+                    }
                 }
-                case "give":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.give")){
+            }else{
+                new Command_Help(plugin).sendHelp(player);
+            }
+        }else{
+            if(args.length>0) {
+                switch (args[0].toLowerCase()) {
+                    case "give":{
                         if(args.length>2){
                             Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                             if(coupon != null){
-                                new Command_Give(plugin).giveCoupon(player, args[2], args[1]);
+                                new Command_Give(plugin).giveCoupon(sender, args[2], args[1]);
                             }else{
-                                messages.sendMessage(player, "coupon.invalid");
+                                messages.sendMessage(sender, "coupon.invalid");
                             }
                         }else{
-                            commandManager.insufficientArgs(player, "sc give <coupon-name> <player>");
+                            commandManager.insufficientArgs(sender, "sc give <coupon-name> <player>");
                         }
+                        break;
                     }
-                    break;
-                }
-                case "create":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.create")){
-                        if(args.length>1){
-                            new Command_Create(plugin).createCoupon(player, args[1]);
-                        }else{
-                            commandManager.insufficientArgs(player, "sc create <coupon-name>");
-                        }
+                    case "reload":{
+                        new Command_Reload(plugin).reloadPlugin(sender);
+                        break;
                     }
-                    break;
-                }
-                case "delete":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.delete")){
-                        if(args.length>1){
-                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
-                            if(coupon != null){
-                                player.closeInventory();
-                                new Command_Delete(plugin).openDeleteMenu(player, coupon);
-                            }else{
-                                messages.sendMessage(player, "coupon.invalid");
-                            }
-                        }else{
-                            commandManager.insufficientArgs(player, "sc delete <coupon-name>");
-                        }
+                    case "help":{
+                        new Command_Help(plugin).sendHelp(sender);
+                        break;
                     }
-                    break;
-                }
-                case "edit":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.edit")){
-                        if(args.length>1){
-                            Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
-                            if(coupon != null){
-                                new Command_Edit(plugin).editCoupon(player, coupon);
-                            }else{
-                                messages.sendMessage(player, "coupon.invalid");
-                            }
-                        }else{
-                            commandManager.insufficientArgs(player, "sc edit <coupon-name>");
-                        }
+                    case "version":{
+                        new Command_Version(plugin).getVersion(sender);
+                        break;
                     }
-                    break;
-                }
-                case "list":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.list")){
-                        new Command_List(plugin).sendCouponList(player);
+                    default:{
+                        new Command_Help(plugin).sendHelp(sender);
+                        break;
                     }
-                    break;
-                }
-                case "reload":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.reload")){
-                        new Command_Reload(plugin).reloadPlugin(player);
-                    }
-                    break;
-                }
-                case "help":{
-                    if(commandManager.playerHasPerm(player, "simplecoupons.help")){
-                        new Command_Help(plugin).sendHelp(player);
-                    }
-                    break;
-                }
-                case "version":{
-                    new Command_Version(plugin).getVersion(player);
-                    break;
-                }
-                default:{
-                    new Command_Help(plugin).sendHelp(player);
-                    break;
                 }
             }
-        }else{
-            new Command_Help(plugin).sendHelp(player);
         }
         return false;
     }

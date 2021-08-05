@@ -18,6 +18,7 @@
 
 package org.kayteam.simplecoupons.commands;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.util.Yaml;
@@ -30,7 +31,7 @@ public class Command_Reload {
         this.plugin = plugin;
     }
 
-    public void reloadPlugin(Player player){
+    public void reloadPlugin(CommandSender sender){
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -38,7 +39,7 @@ public class Command_Reload {
                 plugin.getCouponManager().loadCoupons();
                 plugin.getConfigYaml().reloadFileConfiguration();
                 plugin.getMessagesYaml().reloadFileConfiguration();
-                plugin.getMessagesYaml().sendMessage(player, "reload");
+                plugin.getMessagesYaml().sendMessage(sender, "reload");
             }
         });
         thread.start();

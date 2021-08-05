@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.kayteam</groupId>
   <artifactId>SimpleCoupons</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
   <build>
     <defaultGoal>clean install package</defaultGoal>
     <resources>

@@ -19,6 +19,7 @@
 package org.kayteam.simplecoupons.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 
@@ -30,12 +31,12 @@ public class Command_Give {
         this.plugin = plugin;
     }
 
-    public void giveCoupon(Player giver, String target, String couponName){
+    public void giveCoupon(CommandSender sender, String target, String couponName){
         if(Bukkit.getServer().getPlayer(target) != null){
             if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
                 plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
             }else{
-                plugin.getMessagesYaml().sendMessage(giver, "coupon.invalid");
+                plugin.getMessagesYaml().sendMessage(sender, "coupon.invalid");
             }
         }
     }

@@ -18,6 +18,7 @@
 
 package org.kayteam.simplecoupons.util;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 
@@ -40,5 +41,9 @@ public class CommandManager {
 
     public void insufficientArgs(Player player, String usage){
         plugin.getMessagesYaml().sendMessage(player, "insufficient-args", new String[][]{{"%usage%", usage}});
+    }
+
+    public void insufficientArgs(CommandSender sender, String usage){
+        plugin.getMessagesYaml().sendMessage(sender, "insufficient-args", new String[][]{{"%usage%", usage}});
     }
 }
