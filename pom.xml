@@ -13,7 +13,6 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-
     <build>
         <finalName>SimpleCoupons-${project.version}</finalName>
         <defaultGoal>clean install package</defaultGoal>
