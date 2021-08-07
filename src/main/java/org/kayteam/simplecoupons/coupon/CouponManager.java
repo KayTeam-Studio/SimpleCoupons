@@ -244,7 +244,11 @@ public class CouponManager {
 
         // GIVE MONEY
         try {
-            SimpleCoupons.getEconomy().depositPlayer(player, coupon.getMoney());
+            if(coupon.getMoney() > 0){
+                SimpleCoupons.getEconomy().depositPlayer(player, coupon.getMoney());
+            }else{
+                SimpleCoupons.getEconomy().withdrawPlayer(player, Math.abs(coupon.getMoney()));
+            }
         } catch (Exception e) {
             Logs.sendGiveMoneyLogError(plugin, "coupons/" + coupon.getName(), player.getName());
         }
