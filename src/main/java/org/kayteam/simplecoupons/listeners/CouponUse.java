@@ -18,10 +18,13 @@
 
 package org.kayteam.simplecoupons.listeners;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.events.CouponUseEvent;
 
@@ -37,7 +40,26 @@ public class CouponUse implements Listener {
     private void onCouponUse(CouponUseEvent event){
         Player player = event.getPlayer();
         CouponManager couponManager = plugin.getCouponManager();
-        couponManager.executeCouponActions(couponManager.getCoupons().get(event.getCouponName()), player);
-        player.getInventory().getItem(event.getEquipmentSlot()).setAmount(player.getInventory().getItem(event.getEquipmentSlot()).getAmount()-1);
+        Coupon coupon = couponManager.getCoupons().get(event.getCouponName());
+        if(!coupon.getPermission().equalsIgnoreCase("none")){
+            if(!player.hasPermission(coupon.getPermission())){
+                plugin.getMessagesYaml().sendMessage(player, "coupon.no-permissions");
+                return;
+            }
+        }
+        NBTItem nbtItem = new NBTItem(player.getInventory().getItem(event.getEquipmentSlot()));
+        if(nbtItem.getInteger("coupon-uses") > 0) {
+            int oldUses = nbtItem.getInteger("coupon-uses");
+            int newUses = nbtItem.getInteger("coupon-uses") - 1;
+            nbtItem.setInteger("coupon-uses", newUses);
+            couponManager.executeCouponActions(coupon, player);
+            if (newUses == 0) {
+                player.getInventory().getItem(event.getEquipmentSlot()).setAmount(player.getInventory().getItem(event.getEquipmentSlot()).getAmount() - 1);
+            }else{
+                player.getInventory().setItem(event.getEquipmentSlot(), nbtItem.getItem());
+            }
+        }else{
+            couponManager.executeCouponActions(coupon, player);
+        }
     }
 }

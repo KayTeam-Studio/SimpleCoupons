@@ -54,9 +54,11 @@ public class CouponsMenu extends PagesInventory {
             Coupon coupon = (Coupon) objects;
             String money = String.valueOf(coupon.getMoney());
             String xp = String.valueOf(coupon.getXp());
+            String permission = coupon.getPermission();
             String items = String.valueOf(coupon.getItems().size());
             String messages = String.valueOf(coupon.getMessages().size());
             String commands = String.valueOf(coupon.getCommands().size());
+            String maxUses = String.valueOf(coupon.getUses());
             ItemStack itemStack = plugin.getConfigYaml().getItemStack("menu.list.items.coupon");
             itemStack.setType(coupon.getCouponItem().getType());
             return Yaml.replace(itemStack,
@@ -66,7 +68,9 @@ public class CouponsMenu extends PagesInventory {
                             {"%coupon_xp%", xp},
                             {"%coupon_items%", items},
                             {"%coupon_messages%", messages},
-                            {"%coupon_commands%", commands}});
+                            {"%coupon_commands%", commands},
+                            {"%coupon_permission%", permission},
+                            {"%coupon_max_uses%", maxUses}});
         }else{
             return null;
         }

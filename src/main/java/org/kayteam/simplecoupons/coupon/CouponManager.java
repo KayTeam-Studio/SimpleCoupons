@@ -143,6 +143,34 @@ public class CouponManager {
                         Logs.sendLoadLogError(plugin,"rewards/commands", "coupons/"+couponName);
                     }
                 }
+
+                // LOAD COUPON MAX USES
+                if(couponYaml.contains("settings.uses")){
+                    if(couponYaml.isInt("settings.uses")){
+                        try{
+                            coupon.setUses(couponYaml.getInt("settings.uses"));
+                        }catch (Exception e){
+                            Logs.sendLoadLogError(plugin,"settings/uses", "coupons/"+couponName);
+                        }
+                    }else{
+                        Logs.sendLoadLogError(plugin,"settings/uses", "coupons/"+couponName);
+                    }
+                }
+
+                // LOAD COUPON PERMISSION
+                if(couponYaml.contains("settings.permission")){
+                    if(couponYaml.isString("settings.permission")){
+                        try{
+                            if(!couponYaml.getString("settings.permission").equalsIgnoreCase("none")){
+                                coupon.setPermission(couponYaml.getString("settings.permission"));
+                            }
+                        }catch (Exception e){
+                            Logs.sendLoadLogError(plugin,"settings/permission", "coupons/"+couponName);
+                        }
+                    }else{
+                        Logs.sendLoadLogError(plugin,"settings/permission", "coupons/"+couponName);
+                    }
+                }
             }
             getCoupons().put(couponName, coupon);
             Logs.sendCorrectCouponLoadLog(plugin, couponName);
@@ -157,10 +185,12 @@ public class CouponManager {
      * @param player Player target who receive the coupon
      */
     public void giveCoupon(String couponName, Player player){
-        if(getCoupons().get(couponName).getCouponItem() != null){
-            ItemStack item = getCoupons().get(couponName).getCouponItem();
+        Coupon coupon = getCoupons().get(couponName);
+        if(coupon.getCouponItem() != null){
+            ItemStack item = coupon.getCouponItem();
             NBTItem nbti = new NBTItem(item);
             nbti.setString("coupon-name", couponName);
+            nbti.setInteger("coupon-uses", coupon.getUses());
             player.getInventory().addItem(nbti.getItem());
         }else{
             Logs.sendGetItemLogError(plugin,"coupons/"+couponName);
@@ -177,6 +207,7 @@ public class CouponManager {
             couponYaml.registerFileConfiguration();
             couponYaml.set("item", null);
             couponYaml.set("rewards", null);
+            couponYaml.set("settings", null);
             couponYaml.setItemStack("item", coupon.getCouponItem());
 
             // SAVE MONEY
@@ -199,6 +230,12 @@ public class CouponManager {
 
             // SAVE MESSAGES
             couponYaml.set("rewards.messages", coupon.getMessages());
+
+            // SAVE MAX USES
+            couponYaml.set("settings.uses", coupon.getUses());
+
+            // SAVE PERMISSION
+            couponYaml.set("settings.permission", coupon.getPermission());
 
             couponYaml.saveFileConfiguration();
         }

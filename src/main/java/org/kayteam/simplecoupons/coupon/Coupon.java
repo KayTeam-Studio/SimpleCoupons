@@ -33,6 +33,8 @@ public class Coupon {
     private List<String> messages = new ArrayList<>();
     private List<String> commands = new ArrayList<>();
     private List<ItemStack> items = new ArrayList<>();
+    private int uses = 1;
+    private String permission = "none";
 
     public Coupon(String name) {
         this.name = name;
@@ -88,5 +90,21 @@ public class Coupon {
 
     public void setItems(List<ItemStack> items) {
         this.items = items;
+    }
+
+    public int getUses() {
+        return uses;
+    }
+
+    public void setUses(int uses) {
+        this.uses = uses;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 }

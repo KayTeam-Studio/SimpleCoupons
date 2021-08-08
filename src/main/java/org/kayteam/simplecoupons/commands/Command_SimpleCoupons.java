@@ -194,18 +194,35 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         List<String> tabs = new ArrayList<>();
         if(args.length==1){
-            tabs.add("edit");
-            tabs.add("delete");
-            tabs.add("create");
-            tabs.add("get");
-            tabs.add("give");
-            tabs.add("list");
-            tabs.add("reload");
-            tabs.add("help");
+            if(commandSender.hasPermission("simplecoupons.edit")){
+                tabs.add("edit");
+            }if(commandSender.hasPermission("simplecoupons.delete")){
+                tabs.add("delete");
+            }
+            if(commandSender.hasPermission("simplecoupons.create")){
+                tabs.add("create");
+            }
+            if(commandSender.hasPermission("simplecoupons.get")){
+                tabs.add("get");
+            }
+            if(commandSender.hasPermission("simplecoupons.give")){
+                tabs.add("give");
+            }
+            if(commandSender.hasPermission("simplecoupons.list")){
+                tabs.add("list");
+            }
+            if(commandSender.hasPermission("simplecoupons.reload")){
+                tabs.add("reload");
+            }
+            if(commandSender.hasPermission("simplecoupons.help")){
+                tabs.add("help");
+            }
             tabs.add("version");
         }else if(args.length==2){
             if(args[0].equalsIgnoreCase("get") || args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("edit") || args[0].equalsIgnoreCase("delete")){
-                tabs.addAll(plugin.getCouponManager().getCoupons().keySet());
+                if(commandSender.hasPermission("simplecoupons.get") || commandSender.hasPermission("simplecoupons.edit") || commandSender.hasPermission("simplecoupons.give")){
+                    tabs.addAll(plugin.getCouponManager().getCoupons().keySet());
+                }
             }
         }else if(args.length>2){
             return null;

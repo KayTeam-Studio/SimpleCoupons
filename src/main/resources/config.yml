@@ -28,6 +28,8 @@ menu:
           - ' &f» &aItems: &2%coupon_items%'
           - ' &f» &aMessages: &2%coupon_messages%'
           - ' &f» &aCommands: &2%coupon_commands%'
+          - ' &f» &aPermission: &2%coupon_permission%'
+          - ' &f» &aMax uses: &2%coupon_max_uses%'
           - '&f'
           - ' &f- &7Left Click to get coupon'
           - ' &f- &7Right Click to edit coupon'
@@ -97,6 +99,23 @@ menu:
           - "&f"
           - " &f- &7Left Click to add command"
           - " &f- &7Right Click to change position"
+      permission:
+        material: NAME_TAG
+        display-name: "&6Change coupon permission"
+        lore:
+          - "&f"
+          - " &f» &aActual permission: &2%coupon_permission%"
+          - "&f"
+          - " &f- &7Left Click to change permission"
+      max-uses:
+        material: BOOK
+        display-name: "&6Change coupon max uses"
+        lore:
+          - "&f"
+          - " &f» &aActual max uses: &2%coupon_max_uses%"
+          - "&f"
+          - " &f- &7Left Click to change max uses"
+
   items:
     title: "Put all item rewards"
   texts-menu:

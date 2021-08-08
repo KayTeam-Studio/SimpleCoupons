@@ -1,3 +1,6 @@
+settings:
+  uses: 1
+  permission: none
 item:
   material: "PAPER"
   display-name: "&eSuper Coupon"

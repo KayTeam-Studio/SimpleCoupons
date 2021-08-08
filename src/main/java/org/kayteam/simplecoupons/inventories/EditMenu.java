@@ -78,7 +78,14 @@ public class EditMenu extends MenuInventory {
         addMenuAction(10, new Item() {
             @Override
             public ItemStack getItem() {
-                return coupon.getCouponItem();
+                ItemStack item = coupon.getCouponItem();
+                ItemMeta meta = item.getItemMeta();
+                List<String> lore = meta.getLore();
+                lore.add(" ");
+                lore.add(Color.convert(" &f- &7Left Click to change item"));
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+                return item;
             }
 
             @Override
@@ -142,7 +149,7 @@ public class EditMenu extends MenuInventory {
         });
 
         // CHANGE XP ITEM
-        addMenuAction(14, new Item() {
+        addMenuAction(13, new Item() {
             @Override
             public ItemStack getItem() {
                 try{
@@ -164,7 +171,7 @@ public class EditMenu extends MenuInventory {
         });
 
         // CHANGE ITEMS REWARD
-        addMenuAction(16, new Item() {
+        addMenuAction(14, new Item() {
             @Override
             public ItemStack getItem() {
                 try{
@@ -183,7 +190,7 @@ public class EditMenu extends MenuInventory {
         });
 
         // CHANGE COMMANDS
-        addMenuAction(30, new Item() {
+        addMenuAction(15, new Item() {
             @Override
             public ItemStack getItem() {
                 try{
@@ -216,7 +223,7 @@ public class EditMenu extends MenuInventory {
         });
 
         // CHANGE MESSAGES
-        addMenuAction(32, new Item() {
+        addMenuAction(16, new Item() {
             @Override
             public ItemStack getItem() {
                 try{
@@ -248,6 +255,38 @@ public class EditMenu extends MenuInventory {
             }
         });
 
+        // CHANGE PERMISSION ITEM
+        addMenuAction(30, new Item() {
+            @Override
+            public ItemStack getItem() {
+                return Yaml.replace(config.getItemStack("menu.edit.items.permission"), new String[][]{{"%coupon_permission%", coupon.getPermission()}});
+            }
+
+            @Override
+            public void onLeftClick(Player player) {
+                player.closeInventory();
+                plugin.getMessagesYaml().sendMessage(player, "edit.chat",
+                        new String[][]{{"%path%", coupon.getName()+"/permission"}, {"%value%", "valid permission"}});
+                new PermissionInput(plugin, coupon).addPermissionInput(player);
+            }
+        });
+
+        // CHANGE USES ITEM
+        addMenuAction(31, new Item() {
+            @Override
+            public ItemStack getItem() {
+                return Yaml.replace(config.getItemStack("menu.edit.items.max-uses"), new String[][]{{"%coupon_max_uses%", String.valueOf(coupon.getUses())}});
+            }
+
+            @Override
+            public void onLeftClick(Player player) {
+                player.closeInventory();
+                plugin.getMessagesYaml().sendMessage(player, "edit.chat",
+                        new String[][]{{"%path%", coupon.getName()+"/uses"}, {"%value%", "valid number"}});
+                new MaxUsesInput(plugin, coupon).addMaxUsesInput(player);
+            }
+        });
+
         // DELETE COUPON ITEM
         addMenuAction(34, new Item() {
             @Override
@@ -257,8 +296,10 @@ public class EditMenu extends MenuInventory {
 
             @Override
             public void onLeftClick(Player player) {
-                player.closeInventory();
-                new Command_Delete(plugin).openDeleteMenu(player, coupon);
+                if(player.hasPermission("simplecoupons.delete")){
+                    player.closeInventory();
+                    new Command_Delete(plugin).openDeleteMenu(player, coupon);
+                }
             }
         });
     }
