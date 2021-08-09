@@ -29,9 +29,11 @@ public class Command_Get {
         this.plugin = plugin;
     }
 
-    public void getCoupon(Player player, String couponName){
+    public void getCoupon(Player player, String couponName, int amount){
         if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-            plugin.getCouponManager().giveCoupon(couponName, player);
+            for(int i = 0; i<amount; i++){
+                plugin.getCouponManager().giveCoupon(couponName, player);
+            }
         }else{
             plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
         }

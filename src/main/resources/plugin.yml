@@ -1,6 +1,6 @@
 name: SimpleCoupons
 main: org.kayteam.simplecoupons.SimpleCoupons
-version: 1.4
+version: 1.5
 authors: [segu23, SirOswaldo]
 website: https://kayteam.org
 softdepend: [Vault, PlaceholderAPI]

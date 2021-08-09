@@ -6,7 +6,7 @@
 
     <groupId>org.kayteam</groupId>
     <artifactId>SimpleCoupons</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

@@ -31,10 +31,12 @@ public class Command_Give {
         this.plugin = plugin;
     }
 
-    public void giveCoupon(CommandSender sender, String target, String couponName){
+    public void giveCoupon(CommandSender sender, String target, String couponName, int amount){
         if(Bukkit.getServer().getPlayer(target) != null){
             if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
+                for(int i = 0; i<amount; i++){
+                    plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
+                }
             }else{
                 plugin.getMessagesYaml().sendMessage(sender, "coupon.invalid");
             }

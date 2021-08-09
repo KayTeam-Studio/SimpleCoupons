@@ -55,7 +55,11 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                             if(args.length > 1){
                                 Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                                 if(coupon != null){
-                                    new Command_Get(plugin).getCoupon(player, args[1]);
+                                    try{
+                                        new Command_Get(plugin).getCoupon(player, args[1], Integer.parseInt(args[2]));
+                                    }catch (Exception e){
+                                        new Command_Get(plugin).getCoupon(player, args[1], 1);
+                                    }
                                 }else{
                                     messages.sendMessage(player, "coupon.invalid");
                                 }
@@ -70,7 +74,11 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                             if(args.length>2){
                                 Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                                 if(coupon != null){
-                                    new Command_Give(plugin).giveCoupon(player, args[2], args[1]);
+                                    try{
+                                        new Command_Give(plugin).giveCoupon(player, args[2], args[1], Integer.parseInt(args[3]));
+                                    }catch (Exception e){
+                                        new Command_Give(plugin).giveCoupon(player, args[2], args[1], 1);
+                                    }
                                 }else{
                                     messages.sendMessage(player, "coupon.invalid");
                                 }
@@ -158,7 +166,11 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                         if(args.length>2){
                             Coupon coupon = plugin.getCouponManager().getCoupons().get(args[1]);
                             if(coupon != null){
-                                new Command_Give(plugin).giveCoupon(sender, args[2], args[1]);
+                                try{
+                                    new Command_Give(plugin).giveCoupon(sender, args[2], args[1], Integer.parseInt(args[3]));
+                                }catch (Exception e){
+                                    new Command_Give(plugin).giveCoupon(sender, args[2], args[1], 1);
+                                }
                             }else{
                                 messages.sendMessage(sender, "coupon.invalid");
                             }
@@ -169,10 +181,6 @@ public class Command_SimpleCoupons implements CommandExecutor, TabCompleter {
                     }
                     case "reload":{
                         new Command_Reload(plugin).reloadPlugin(sender);
-                        break;
-                    }
-                    case "help":{
-                        new Command_Help(plugin).sendHelp(sender);
                         break;
                     }
                     case "version":{
