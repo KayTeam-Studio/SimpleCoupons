@@ -24,8 +24,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class InteractManager implements Listener {
 
@@ -46,7 +48,7 @@ public class InteractManager implements Listener {
             // Getting the Interact Input
             Interact interactInput = inputs.get(player.getName());
             // If onInteractInput method return true
-            if (interactInput.onInteract(player, event.getItem())) {
+            if (interactInput.onInteract(player, new ItemStack(Objects.requireNonNull(event.getItem())))) {
                 // Removing Interact Input
                 inputs.remove(player.getName());
             }

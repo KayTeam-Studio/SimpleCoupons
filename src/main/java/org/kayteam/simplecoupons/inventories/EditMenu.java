@@ -78,10 +78,15 @@ public class EditMenu extends MenuInventory {
         addMenuAction(10, new Item() {
             @Override
             public ItemStack getItem() {
-                ItemStack item = coupon.getCouponItem();
+                ItemStack item = new ItemStack(coupon.getCouponItem());
                 ItemMeta meta = item.getItemMeta();
-                List<String> lore = meta.getLore();
-                lore.add(" ");
+                List<String> lore;
+                if(meta.getLore() != null){
+                    lore = meta.getLore();
+                }else{
+                    lore = new ArrayList<>();
+                }
+                lore.add(Color.convert("&f"));
                 lore.add(Color.convert(" &f- &7Left Click to change item"));
                 meta.setLore(lore);
                 item.setItemMeta(meta);
