@@ -16,25 +16,27 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.inventories.EditMenu;
+import org.kayteam.storageapi.storage.Yaml;
 
+public class CommandReload {
+    private SimpleCoupons plugin;
 
-public class Command_Edit {
-    private final SimpleCoupons plugin;
-
-    public Command_Edit(SimpleCoupons plugin) {
+    public CommandReload(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void editCoupon(Player player, Coupon coupon) {
-        if (coupon != null) {
-            player.closeInventory();
-            this.plugin.getInventoryManager().openInventory(player, new EditMenu(this.plugin, coupon));
-        }
+    public void reloadPlugin(CommandSender sender) {
+        Thread thread = new Thread(() -> {
+            this.plugin.getCouponManager().getCoupons().clear();
+            this.plugin.getCouponManager().loadCoupons();
+            this.plugin.getConfigYaml().reload();
+            this.plugin.getMessagesYaml().reload();
+            Yaml.sendSimpleMessage(sender, this.plugin.getMessagesYaml().get("reload"));
+        });
+        thread.start();
     }
 }

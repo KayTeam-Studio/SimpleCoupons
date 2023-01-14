@@ -22,7 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.kayteam.inventoryapi.InventoryBuilder;
 import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.simplecoupons.commands.Command_Delete;
+import org.kayteam.simplecoupons.commands.subcommands.CommandDelete;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.inputs.*;
 import org.kayteam.simplecoupons.util.Color;
@@ -142,7 +142,7 @@ public class EditMenu extends InventoryBuilder {
         addLeftAction(34, (player, slot) -> {
             if (player.hasPermission("simplecoupons.delete")) {
                 player.closeInventory();
-                (new Command_Delete(plugin)).openDeleteMenu(player, coupon);
+                (new CommandDelete(plugin)).openDeleteMenu(player, coupon);
             }
         });
     }

@@ -23,7 +23,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.kayteam.inputapi.InputManager;
 import org.kayteam.inventoryapi.InventoryManager;
-import org.kayteam.simplecoupons.commands.Command_SimpleCoupons;
+import org.kayteam.simplecoupons.commands.CommandSimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.listeners.CouponUse;
 import org.kayteam.simplecoupons.listeners.PlayerInteract;
@@ -91,7 +91,7 @@ public class SimpleCoupons extends JavaPlugin {
     }
 
     private void registerCommands() {
-        getCommand("simplecoupons").setExecutor(new Command_SimpleCoupons(this));
+        getCommand("simplecoupons").setExecutor(new CommandSimpleCoupons(this));
     }
 
     private void enablebStats() {

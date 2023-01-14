@@ -16,16 +16,16 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.storageapi.storage.Yaml;
 
-public class Command_Get {
+public class CommandGet {
     private final SimpleCoupons plugin;
 
-    public Command_Get(SimpleCoupons plugin) {
+    public CommandGet(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 

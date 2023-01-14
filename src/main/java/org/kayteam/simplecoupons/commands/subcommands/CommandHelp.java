@@ -16,27 +16,20 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
 import org.bukkit.command.CommandSender;
 import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.storageapi.storage.Yaml;
 
-public class Command_Reload {
+public class CommandHelp {
+
     private SimpleCoupons plugin;
 
-    public Command_Reload(SimpleCoupons plugin) {
+    public CommandHelp(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void reloadPlugin(CommandSender sender) {
-        Thread thread = new Thread(() -> {
-            this.plugin.getCouponManager().getCoupons().clear();
-            this.plugin.getCouponManager().loadCoupons();
-            this.plugin.getConfigYaml().reload();
-            this.plugin.getMessagesYaml().reload();
-            Yaml.sendSimpleMessage(sender, this.plugin.getMessagesYaml().get("reload"));
-        });
-        thread.start();
+    public void sendHelp(CommandSender sender){
+        plugin.getMessagesYaml().sendMessage(sender, "help");
     }
 }

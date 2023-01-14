@@ -16,16 +16,16 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.inventories.CouponsMenu;
 
-public class Command_List {
+public class CommandList {
     private final SimpleCoupons plugin;
 
-    public Command_List(SimpleCoupons plugin) {
+    public CommandList(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 

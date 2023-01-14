@@ -16,21 +16,21 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.simplecoupons.coupon.Coupon;
+import org.kayteam.simplecoupons.inventories.DeleteMenu;
 
-public class Command_Help {
+public class CommandDelete {
+    private final SimpleCoupons plugin;
 
-    private SimpleCoupons plugin;
-
-    public Command_Help(SimpleCoupons plugin) {
+    public CommandDelete(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void sendHelp(CommandSender sender){
-        plugin.getMessagesYaml().sendMessage(sender, "help");
+    public void openDeleteMenu(Player player, Coupon coupon) {
+        this.plugin.getInventoryManager().openInventory(player, new DeleteMenu(this.plugin, player, coupon));
     }
 }

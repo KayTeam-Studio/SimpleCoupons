@@ -16,7 +16,7 @@
  *
  */
 
-package org.kayteam.simplecoupons.commands;
+package org.kayteam.simplecoupons.commands.subcommands;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,10 +29,10 @@ import org.kayteam.simplecoupons.inventories.EditMenu;
 import org.kayteam.simplecoupons.util.Color;
 import org.kayteam.storageapi.storage.Yaml;
 
-public class Command_Create {
+public class CommandCreate {
     private final SimpleCoupons plugin;
 
-    public Command_Create(SimpleCoupons plugin) {
+    public CommandCreate(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 

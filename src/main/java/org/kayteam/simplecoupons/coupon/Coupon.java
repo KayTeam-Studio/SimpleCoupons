@@ -22,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Coupon {
 
@@ -40,11 +39,11 @@ public class Coupon {
         this.name = name;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setCouponItem(ItemStack couponItem){
+    public void setCouponItem(ItemStack couponItem) {
         this.couponItem = couponItem;
     }
 
