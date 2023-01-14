@@ -24,7 +24,6 @@ import org.kayteam.inventoryapi.InventoryBuilder;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.commands.Command_Delete;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.inputs.*;
 import org.kayteam.simplecoupons.util.Color;
 import org.kayteam.storageapi.storage.YML;
@@ -36,8 +35,6 @@ import java.util.List;
 public class EditMenu extends InventoryBuilder {
     public EditMenu(SimpleCoupons plugin, Coupon coupon) {
         super(plugin.getConfigYaml().getString("menu.edit.title"), 5);
-        CouponManager couponManager = plugin.getCouponManager();
-        YML messages = plugin.getMessagesYaml();
         YML config = plugin.getConfigYaml();
         fillItem(() -> config.getItemStack("menu.list.items.fill"));
         addItem(28, () -> config.getItemStack("menu.list.items.close"));

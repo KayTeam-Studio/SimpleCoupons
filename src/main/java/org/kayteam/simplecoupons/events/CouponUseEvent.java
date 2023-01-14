@@ -22,10 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.EquipmentSlot;
-import org.jetbrains.annotations.NotNull;
-import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.simplecoupons.coupon.CouponManager;
 
 public class CouponUseEvent extends Event implements Cancellable {
     private static final HandlerList handlerList = new HandlerList();

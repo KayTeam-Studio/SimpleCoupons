@@ -19,14 +19,12 @@
 package org.kayteam.simplecoupons;
 
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.kayteam.inputapi.InputManager;
 import org.kayteam.inventoryapi.InventoryManager;
 import org.kayteam.simplecoupons.commands.Command_SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
-import org.kayteam.simplecoupons.inventories.CouponsMenu;
 import org.kayteam.simplecoupons.listeners.CouponUse;
 import org.kayteam.simplecoupons.listeners.PlayerInteract;
 import org.kayteam.simplecoupons.util.CommandManager;
@@ -36,17 +34,15 @@ import org.kayteam.storageapi.storage.YML;
 import org.kayteam.storageapi.utils.BrandSender;
 
 public class SimpleCoupons extends JavaPlugin {
+
     private final CouponManager couponManager = new CouponManager(this);
-
     private final CommandManager commandManager = new CommandManager(this);
-
-    private static Economy econ = null;
-
-    private final YML config = new YML(this, "config");
-
-    private final YML messages = new YML(this, "messages");
-
+    public InventoryManager inventoryManager = new InventoryManager(this);
+    public InputManager inputManager = new InputManager(this);
     private UpdateChecker updateChecker;
+    private static Economy econ = null;
+    private final YML config = new YML(this, "config");
+    private final YML messages = new YML(this, "messages");
 
     public void onEnable() {
         BrandSender.onEnable(this);
@@ -54,7 +50,6 @@ public class SimpleCoupons extends JavaPlugin {
         setupEconomy();
         registerCommands();
         this.couponManager.loadCoupons();
-        this.couponsMenu = new CouponsMenu(this, 0);
         registerListeners();
         inventoryManager.registerManager();
         inputManager.registerManager();
@@ -68,22 +63,12 @@ public class SimpleCoupons extends JavaPlugin {
         return this.updateChecker;
     }
 
-    public InventoryManager inventoryManager = new InventoryManager(this);
-
     public InventoryManager getInventoryManager() {
         return this.inventoryManager;
     }
 
-    public InputManager inputManager = new InputManager(this);
-
-    private CouponsMenu couponsMenu;
-
     public InputManager getInputManager() {
         return this.inputManager;
-    }
-
-    public CouponsMenu getCouponsMenu() {
-        return this.couponsMenu;
     }
 
     private void registerFiles() {

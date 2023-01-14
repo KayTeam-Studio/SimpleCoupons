@@ -26,17 +26,9 @@ import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.storageapi.storage.Yaml;
 
 public class DeleteMenu extends InventoryBuilder {
-    private SimpleCoupons plugin;
-
-    private Player player;
-
-    private Coupon coupon;
 
     public DeleteMenu(SimpleCoupons plugin, Player player, Coupon coupon) {
         super(plugin.getConfigYaml().getString("menu.delete.title"), 3);
-        this.plugin = plugin;
-        this.player = player;
-        this.coupon = coupon;
         fillItem(() -> plugin.getConfigYaml().getItemStack("menu.list.items.fill"));
         addItem(11, () -> plugin.getConfigYaml().getItemStack("menu.delete.items.confirm"));
         addLeftAction(11, (player1, slot) -> {
