@@ -19,46 +19,47 @@
 package org.kayteam.simplecoupons.listeners;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.events.CouponUseEvent;
+import org.kayteam.storageapi.storage.Yaml;
+
+import java.util.Objects;
 
 public class CouponUse implements Listener {
-
-    private SimpleCoupons plugin;
+    private final SimpleCoupons plugin;
 
     public CouponUse(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    private void onCouponUse(CouponUseEvent event){
+    private void onCouponUse(CouponUseEvent event) {
         Player player = event.getPlayer();
-        CouponManager couponManager = plugin.getCouponManager();
+        CouponManager couponManager = this.plugin.getCouponManager();
         Coupon coupon = couponManager.getCoupons().get(event.getCouponName());
-        if(!coupon.getPermission().equalsIgnoreCase("none")){
-            if(!player.hasPermission(coupon.getPermission())){
-                plugin.getMessagesYaml().sendMessage(player, "coupon.no-permissions");
-                return;
-            }
+        if (!coupon.getPermission().equalsIgnoreCase("none") &&
+                !player.hasPermission(coupon.getPermission())) {
+            Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("coupon.no-permissions"));
+            return;
         }
-        NBTItem nbtItem = new NBTItem(player.getInventory().getItem(event.getEquipmentSlot()));
-        if(nbtItem.getInteger("coupon-uses") > 0) {
-            int oldUses = nbtItem.getInteger("coupon-uses");
-            int newUses = nbtItem.getInteger("coupon-uses") - 1;
-            nbtItem.setInteger("coupon-uses", newUses);
+        NBTItem nbtItem = new NBTItem(Objects.<ItemStack>requireNonNull(player.getInventory().getItem(event.getInventorySlot())));
+        if (nbtItem.getInteger("coupon-uses").intValue() > 0) {
+            int oldUses = nbtItem.getInteger("coupon-uses").intValue();
+            int newUses = oldUses - 1;
+            nbtItem.setInteger("coupon-uses", Integer.valueOf(newUses));
             couponManager.executeCouponActions(coupon, player);
             if (newUses == 0) {
-                player.getInventory().getItem(event.getEquipmentSlot()).setAmount(player.getInventory().getItem(event.getEquipmentSlot()).getAmount() - 1);
-            }else{
-                player.getInventory().setItem(event.getEquipmentSlot(), nbtItem.getItem());
+                Objects.<ItemStack>requireNonNull(player.getInventory().getItem(event.getInventorySlot())).setAmount(Objects.<ItemStack>requireNonNull(player.getInventory().getItem(event.getInventorySlot())).getAmount() - 1);
+            } else {
+                player.getInventory().setItem(event.getInventorySlot(), nbtItem.getItem());
             }
-        }else{
+        } else {
             couponManager.executeCouponActions(coupon, player);
         }
     }

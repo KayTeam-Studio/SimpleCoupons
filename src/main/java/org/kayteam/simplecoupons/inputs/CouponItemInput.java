@@ -18,5 +18,42 @@
 
 package org.kayteam.simplecoupons.inputs;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.kayteam.inputapi.inputs.DropInput;
+import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.simplecoupons.coupon.Coupon;
+import org.kayteam.storageapi.storage.Yaml;
+
 public class CouponItemInput {
+    private final SimpleCoupons plugin;
+
+    private final Coupon coupon;
+
+    public CouponItemInput(SimpleCoupons plugin, Coupon coupon) {
+        this.plugin = plugin;
+        this.coupon = coupon;
+    }
+
+    public void addCouponItemInput(Player player) {
+        Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().getString("edit.item"), new String[][]{{"%path%", this.coupon
+                .getName() + "/item"}, {"%value%", "valid item"}});
+        this.plugin.getInputManager().addInput(player, new DropInput() {
+            public void onPLayerDrop(Player player, ItemStack input) {
+                if (!input.getType().equals(Material.AIR)) {
+                    CouponItemInput.this.coupon.setCouponItem(input);
+                    CouponItemInput.this.plugin.getCouponManager().saveCoupon(CouponItemInput.this.coupon);
+                    Bukkit.getScheduler().runTaskLater(CouponItemInput.this.plugin, () -> CouponItemInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + CouponItemInput.this.coupon.getName()), 1L);
+                } else {
+                    Yaml.sendSimpleMessage(player, CouponItemInput.this.plugin.getMessagesYaml().get("edit.item"), new String[][]{{"%path%", coupon.getName() + "/item"}, {"%value%", "valid item"}});
+                }
+            }
+
+            public void onPlayerSneak(Player player) {
+                Bukkit.getScheduler().runTaskLater(CouponItemInput.this.plugin, () -> CouponItemInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + CouponItemInput.this.coupon.getName()), 1L);
+            }
+        });
+    }
 }

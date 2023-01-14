@@ -15,7 +15,7 @@ help:
   - " &8> &6/sc version: &7Show plugin version."
 edit:
   chat: "&aSimple&2Coupons &8> &aYou are now editing &f%path%&a please enter &f%value%&a. Press &oShift &ato cancel that action."
-  item: "&aSimple&2Coupons &8> &aYou are now editing &f%path%&a please &oRight Click &aon &f%value%&a. Press &oShift &ato cancel that action."
+  item: "&aSimple&2Coupons &8> &aYou are now editing &f%path%&a please &oDrop &aa &f%value%&a. Press &oShift &ato cancel that action."
   deleted: "&aSimple&2Coupons &8> &f%coupon_name% &ahas been deleted."
 coupon:
   no-permissions: "&aSimple&2Coupons &8> &cSorry, you dont have permissions to use that coupon."

@@ -21,117 +21,106 @@ package org.kayteam.simplecoupons.inventories;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.kayteam.inventoryapi.InventoryBuilder;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.Yaml;
-import org.kayteam.simplecoupons.util.inventory.inventories.PagesInventory;
+import org.kayteam.storageapi.storage.Yaml;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandsEditMenu extends PagesInventory {
-
+public class CommandsEditMenu extends InventoryBuilder {
     private final SimpleCoupons plugin;
+
     private Coupon coupon;
 
-    public CommandsEditMenu(SimpleCoupons plugin, List<Object> index, Coupon coupon) {
-        super(plugin.getConfigYaml().getString("menu.texts-menu.title").replaceAll("%path%", "commands"),
-                plugin.getConfigYaml().getInt("menu.texts-menu.rows"),
-                index);
+    private int page;
+
+    public CommandsEditMenu(SimpleCoupons plugin, List<Object> index, Coupon coupon, int page) {
+        super(plugin.getConfigYaml().getString("menu.texts-menu.title", new String[][]{{"%path%", "commands"}}), 3);
         this.plugin = plugin;
         this.coupon = coupon;
+        this.page = page;
+        fillItem(() -> plugin.getConfigYaml().getItemStack("menu.list.items.fill"));
+        addItem(22, () -> plugin.getConfigYaml().getItemStack("menu.list.items.close"));
+        addLeftAction(22, (player, slot) -> player.closeInventory());
+        int itemSlot = 0;
+        for (int i = 9 * page; i < index.size() && i < 9 * page + 8; i++) {
+            int finalI = i;
+            addItem(9 + itemSlot, () -> getListedItem(Integer.valueOf(finalI)));
+            addLeftAction(9 + itemSlot, (player, slot) -> onLeftClick(player, Integer.valueOf(finalI)));
+            addMiddleAction(9 + itemSlot, (player, slot) -> onMiddleClick(player, Integer.valueOf(finalI)));
+            addRightAction(9 + itemSlot, (player, slot) -> onRightClick(player, Integer.valueOf(finalI)));
+            itemSlot++;
+        }
+        if (page > 0) {
+            addItem(26, () -> plugin.getConfigYaml().getItemStack("menu.list.items.previous-page"));
+            addLeftAction(26, (player, slot) -> plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(plugin, index, coupon, page - 1)));
+        }
+        if (index.size() >= 9 * page + 9) {
+            addItem(26, () -> plugin.getConfigYaml().getItemStack("menu.list.items.next-page"));
+            addLeftAction(26, (player, slot) -> plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(plugin, index, coupon, page + 1)));
+        }
     }
 
-    @Override
     public ItemStack getListedItem(Object object) {
-        if(object != null) {
-            NBTItem nbtItem = new NBTItem(Yaml.replace(plugin.getConfigYaml().getItemStack("menu.texts-menu.items.commands"),
-                    new String[][]{{"%command%", coupon.getCommands().get((int) object)}}));
+        if (object != null) {
+            NBTItem nbtItem = new NBTItem(Yaml.replace(this.plugin.getConfigYaml().getItemStack("menu.texts-menu.items.commands"), new String[][]{{"%command%", this.coupon
+                    .getCommands().get(((Integer) object).intValue())}}));
             nbtItem.setInteger("command-index", (Integer) object);
             return nbtItem.getItem();
         }
         return null;
     }
 
-    @Override
-    public ItemStack getPanel(){
-        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
-    }
-
-    @Override
-    public ItemStack getInformation() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
-    }
-
-    @Override
-    public ItemStack getPrevious() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.previous-page");
-    }
-
-    @Override
-    public ItemStack getNext() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.next-page");
-    }
-
-    @Override
-    public ItemStack getClose() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.close");
-    }
-
-    @Override
     public void onRightClick(Player player, Object object) {
-        int index = (int) object;
-        List<String> commands = coupon.getCommands();
-        if(index+1 < commands.size()) {
+        int index = ((Integer) object).intValue();
+        List<String> commands = this.coupon.getCommands();
+        if (index + 1 < commands.size()) {
             String line = commands.get(index);
             String line2 = commands.get(index + 1);
             commands.set(index + 1, line);
             commands.set(index, line2);
-            coupon.setCommands(commands);
-            plugin.getCouponManager().saveCoupon(coupon);
-            List<Object> indexList = new ArrayList<>();
-            for (int i = 0; i < coupon.getCommands().size(); i++) {
-                indexList.add(i);
-            }
+            this.coupon.setCommands(commands);
+            this.plugin.getCouponManager().saveCoupon(this.coupon);
+            List<Object> indexList = new ArrayList();
+            for (int i = 0; i < this.coupon.getCommands().size(); i++)
+                indexList.add(Integer.valueOf(i));
             player.closeInventory();
-            plugin.getMenuInventoryManager().openInventory(player, new CommandsEditMenu(plugin, indexList, coupon));
+            this.plugin.getInventoryManager().openInventory(player, new CommandsEditMenu(this.plugin, indexList, this.coupon, this.page));
         }
     }
 
-    @Override
     public void onLeftClick(Player player, Object object) {
-        int index = (int) object;
-        List<String> commands = coupon.getCommands();
-        if(index >= 1){
+        int index = ((Integer) object).intValue();
+        List<String> commands = this.coupon.getCommands();
+        if (index >= 1) {
             String line = commands.get(index);
-            String line2 = commands.get(index-1);
-            commands.set(index-1, line);
+            String line2 = commands.get(index - 1);
+            commands.set(index - 1, line);
             commands.set(index, line2);
-            coupon.setCommands(commands);
-            plugin.getCouponManager().saveCoupon(coupon);
-            List<Object> indexList = new ArrayList<>();
-            for(int i = 0; i < commands.size(); i++){
-                indexList.add(i);
-            }
+            this.coupon.setCommands(commands);
+            this.plugin.getCouponManager().saveCoupon(this.coupon);
+            List<Object> indexList = new ArrayList();
+            for (int i = 0; i < commands.size(); i++)
+                indexList.add(Integer.valueOf(i));
             player.closeInventory();
-            if(indexList.size() == 0){
-                plugin.getMenuInventoryManager().openInventory(player, new EditMenu(plugin, coupon));
-            }else{
-                plugin.getMenuInventoryManager().openInventory(player, new CommandsEditMenu(plugin, indexList, coupon));
+            if (indexList.size() == 0) {
+                this.plugin.getInventoryManager().openInventory(player, new EditMenu(this.plugin, this.coupon));
+            } else {
+                this.plugin.getInventoryManager().openInventory(player, new CommandsEditMenu(this.plugin, indexList, this.coupon, this.page));
             }
         }
     }
 
-    @Override
     public void onMiddleClick(Player player, Object object) {
-        int index = (int) object;
-        coupon.getCommands().remove(index);
-        plugin.getCouponManager().saveCoupon(coupon);
-        List<Object> indexList = new ArrayList<>();
-        for(int i = 0; i < coupon.getCommands().size(); i++){
-            indexList.add(i);
-        }
+        int index = ((Integer) object).intValue();
+        this.coupon.getCommands().remove(index);
+        this.plugin.getCouponManager().saveCoupon(this.coupon);
+        List<Object> indexList = new ArrayList();
+        for (int i = 0; i < this.coupon.getCommands().size(); i++)
+            indexList.add(Integer.valueOf(i));
         player.closeInventory();
-        plugin.getMenuInventoryManager().openInventory(player, new CommandsEditMenu(plugin, indexList, coupon));
+        this.plugin.getInventoryManager().openInventory(player, new CommandsEditMenu(this.plugin, indexList, this.coupon, this.page));
     }
 }

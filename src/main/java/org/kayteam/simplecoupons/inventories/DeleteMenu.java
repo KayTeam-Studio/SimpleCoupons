@@ -20,82 +20,51 @@ package org.kayteam.simplecoupons.inventories;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.kayteam.inventoryapi.InventoryBuilder;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.Yaml;
-import org.kayteam.simplecoupons.util.inventory.inventories.ConfirmInventory;
+import org.kayteam.storageapi.storage.Yaml;
 
-public class DeleteMenu extends ConfirmInventory {
-
+public class DeleteMenu extends InventoryBuilder {
     private SimpleCoupons plugin;
+
     private Player player;
+
     private Coupon coupon;
 
     public DeleteMenu(SimpleCoupons plugin, Player player, Coupon coupon) {
+        super(plugin.getConfigYaml().getString("menu.delete.title"), 3);
         this.plugin = plugin;
         this.player = player;
         this.coupon = coupon;
-    }
-
-    @Override
-    public String getTitle() {
-        return plugin.getConfigYaml().getString("menu.delete.title");
-    }
-
-    @Override
-    public ItemStack getPanel() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
-    }
-
-    @Override
-    public ItemStack getInformation() {
-        if(coupon!=null){
-            String money = String.valueOf(coupon.getMoney());
-            String xp = String.valueOf(coupon.getXp());
-            String items = String.valueOf(coupon.getItems().size());
-            String messages = String.valueOf(coupon.getMessages().size());
-            String commands = String.valueOf(coupon.getCommands().size());
-            ItemStack itemStack = plugin.getConfigYaml().getItemStack("menu.delete.items.coupon");
-            itemStack.setType(coupon.getCouponItem().getType());
-            return Yaml.replace(itemStack,
-                    new String[][]{
-                            {"%coupon_name%", coupon.getName()},
-                            {"%coupon_money%", money},
-                            {"%coupon_xp%", xp},
-                            {"%coupon_items%", items},
-                            {"%coupon_messages%", messages},
-                            {"%coupon_commands%", commands}});
-        }else{
-            return null;
-        }
-    }
-
-    @Override
-    public ItemStack getAccept() {
-        return plugin.getConfigYaml().getItemStack("menu.delete.items.confirm");
-    }
-
-    @Override
-    public ItemStack getCancel() {
-        return plugin.getConfigYaml().getItemStack("menu.delete.items.cancel");
-    }
-
-    @Override
-    public void onAccept() {
-        if(coupon != null){
-            if(plugin.getCouponManager().deleteCoupon(coupon)){
-                player.closeInventory();
-                plugin.getMessagesYaml().sendMessage(player, "edit.deleted", new String[][]{{"%coupon_name%", coupon.getName()}});
-            }else{
-                plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
+        fillItem(() -> plugin.getConfigYaml().getItemStack("menu.list.items.fill"));
+        addItem(11, () -> plugin.getConfigYaml().getItemStack("menu.delete.items.confirm"));
+        addLeftAction(11, (player1, slot) -> {
+            if (coupon != null) {
+                if (plugin.getCouponManager().deleteCoupon(coupon)) {
+                    player.closeInventory();
+                    Yaml.sendSimpleMessage(player, plugin.getMessagesYaml().get("edit.deleted"), new String[][]{{"%coupon_name%", coupon.getName()}});
+                } else {
+                    Yaml.sendSimpleMessage(player, plugin.getMessagesYaml().get("coupon.invalid"));
+                }
+            } else {
+                Yaml.sendSimpleMessage(player, plugin.getMessagesYaml().get("coupon.invalid"));
             }
-        }else{
-            plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
-        }
-    }
-
-    @Override
-    public void onCancel() {
-        player.closeInventory();
+        });
+        addItem(13, () -> {
+            if (coupon != null) {
+                String money = String.valueOf(coupon.getMoney());
+                String xp = String.valueOf(coupon.getXp());
+                String items = String.valueOf(coupon.getItems().size());
+                String messages = String.valueOf(coupon.getMessages().size());
+                String commands = String.valueOf(coupon.getCommands().size());
+                ItemStack itemStack = plugin.getConfigYaml().getItemStack("menu.delete.items.coupon");
+                itemStack.setType(coupon.getCouponItem().getType());
+                return Yaml.replace(itemStack, new String[][]{{"%coupon_name%", coupon.getName()}, {"%coupon_money%", money}, {"%coupon_xp%", xp}, {"%coupon_items%", items}, {"%coupon_messages%", messages}, {"%coupon_commands%", commands}});
+            }
+            return null;
+        });
+        addItem(15, () -> plugin.getConfigYaml().getItemStack("menu.delete.items.cancel"));
+        addLeftAction(15, (player1, slot) -> player.closeInventory());
     }
 }

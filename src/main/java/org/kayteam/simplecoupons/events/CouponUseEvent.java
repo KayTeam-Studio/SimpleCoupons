@@ -28,40 +28,34 @@ import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 
 public class CouponUseEvent extends Event implements Cancellable {
-
     private static final HandlerList handlerList = new HandlerList();
 
     private boolean cancelled = false;
 
     private final Player player;
-    private final String couponName;
-    private final EquipmentSlot equipmentSlot;
 
-    /**
-     *
-     * @param player Player who use the coupon
-     * @param couponName Coupon name.
-     * @param equipmentSlot Slot of the player inventory where the coupon item was.
-     */
-    public CouponUseEvent(Player player, String couponName, EquipmentSlot equipmentSlot) {
+    private final String couponName;
+
+    private final int inventorySlot;
+
+    public CouponUseEvent(Player player, String couponName, int inventorySlot) {
         this.player = player;
         this.couponName = couponName;
-        this.equipmentSlot = equipmentSlot;
+        this.inventorySlot = inventorySlot;
     }
 
-    public EquipmentSlot getEquipmentSlot() {
-        return equipmentSlot;
+    public int getInventorySlot() {
+        return this.inventorySlot;
     }
 
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     public String getCouponName() {
-        return couponName;
+        return this.couponName;
     }
 
-    @Override
     public HandlerList getHandlers() {
         return handlerList;
     }
@@ -70,12 +64,10 @@ public class CouponUseEvent extends Event implements Cancellable {
         return handlerList;
     }
 
-    @Override
     public boolean isCancelled() {
-        return cancelled;
+        return this.cancelled;
     }
 
-    @Override
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }

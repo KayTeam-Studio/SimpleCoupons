@@ -19,19 +19,16 @@
 package org.kayteam.simplecoupons.listeners;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.events.CouponUseEvent;
 
 import java.util.Objects;
 
-public class PlayerInteract implements Listener {
 
+public class PlayerInteract implements Listener {
     private final SimpleCoupons plugin;
 
     public PlayerInteract(SimpleCoupons plugin) {
@@ -39,12 +36,13 @@ public class PlayerInteract implements Listener {
     }
 
     @EventHandler
-    private void onInteract(PlayerInteractEvent event){
-        try{
-            if(plugin.getCouponManager().getCoupons().containsKey((new NBTItem(Objects.requireNonNull(event.getItem())).getString("coupon-name")))){
+    private void onInteract(PlayerInteractEvent event) {
+        try {
+            if (this.plugin.getCouponManager().getCoupons().containsKey((new NBTItem(Objects.requireNonNull(event.getItem()))).getString("coupon-name"))) {
                 event.setCancelled(true);
-                plugin.getServer().getPluginManager().callEvent(new CouponUseEvent(event.getPlayer(), new NBTItem(event.getItem()).getString("coupon-name"), event.getHand()));
+                this.plugin.getServer().getPluginManager().callEvent(new CouponUseEvent(event.getPlayer(), (new NBTItem(event.getItem())).getString("coupon-name"), event.getPlayer().getInventory().getHeldItemSlot()));
             }
-        }catch (Exception ignored){}
+        } catch (Exception exception) {
+        }
     }
 }

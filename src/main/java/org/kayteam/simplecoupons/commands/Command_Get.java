@@ -20,22 +20,22 @@ package org.kayteam.simplecoupons.commands;
 
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class Command_Get {
-
-    private SimpleCoupons plugin;
+    private final SimpleCoupons plugin;
 
     public Command_Get(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void getCoupon(Player player, String couponName, int amount){
-        if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-            for(int i = 0; i<amount; i++){
-                plugin.getCouponManager().giveCoupon(couponName, player);
-            }
-        }else{
-            plugin.getMessagesYaml().sendMessage(player, "coupon.invalid");
+    public void getCoupon(Player player, String couponName, int amount) {
+        if (this.plugin.getCouponManager().getCoupons().containsKey(couponName)) {
+            for (int i = 0; i < amount; i++)
+                this.plugin.getCouponManager().giveCoupon(couponName, player);
+        } else {
+            Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("coupon.invalid"));
         }
     }
 }
+

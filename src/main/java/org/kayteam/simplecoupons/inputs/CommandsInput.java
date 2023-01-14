@@ -20,45 +20,35 @@ package org.kayteam.simplecoupons.inputs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.kayteam.inputapi.inputs.ChatInput;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.chat.ChatInput;
+import org.kayteam.storageapi.storage.Yaml;
 
-import java.util.HashMap;
 
 public class CommandsInput {
+    private final SimpleCoupons plugin;
 
-    private SimpleCoupons plugin;
-    private Coupon coupon;
+    private final Coupon coupon;
 
     public CommandsInput(SimpleCoupons plugin, Coupon coupon) {
         this.plugin = plugin;
         this.coupon = coupon;
     }
 
-    public void addCommandInput(Player player){
-        plugin.getChatInputManager().addChatInput(player, new ChatInput(new HashMap<>()) {
-            @Override
+    public void addCommandInput(Player player) {
+        Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("edit.chat"), new String[][]{{"%path%", this.coupon
+                .getName() + "/commands"}, {"%value%", "valid command"}});
+        this.plugin.getInputManager().addInput(player, new ChatInput() {
             public boolean onChatInput(Player player, String input) {
-                coupon.getCommands().add(input);
-                plugin.getCouponManager().saveCoupon(coupon);
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                    }
-                }, 1);
+                CommandsInput.this.coupon.getCommands().add(input);
+                CommandsInput.this.plugin.getCouponManager().saveCoupon(CommandsInput.this.coupon);
+                Bukkit.getScheduler().runTaskLater(CommandsInput.this.plugin, () -> CommandsInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + CommandsInput.this.coupon.getName()), 1L);
                 return true;
             }
 
-            @Override
             public void onPlayerSneak(Player player) {
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                    }
-                }, 1);
+                Bukkit.getScheduler().runTaskLater(CommandsInput.this.plugin, () -> CommandsInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + CommandsInput.this.coupon.getName()), 1L);
             }
         });
     }

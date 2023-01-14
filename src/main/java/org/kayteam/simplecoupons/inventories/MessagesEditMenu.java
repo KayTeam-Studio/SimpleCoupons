@@ -21,117 +21,100 @@ package org.kayteam.simplecoupons.inventories;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.kayteam.inventoryapi.InventoryBuilder;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.Yaml;
-import org.kayteam.simplecoupons.util.inventory.inventories.PagesInventory;
+import org.kayteam.storageapi.storage.Yaml;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagesEditMenu extends PagesInventory {
-
+public class MessagesEditMenu extends InventoryBuilder {
     private final SimpleCoupons plugin;
+
     private Coupon coupon;
 
-    public MessagesEditMenu(SimpleCoupons plugin, List<Object> index, Coupon coupon) {
-        super(plugin.getConfigYaml().getString("menu.texts-menu.title").replaceAll("%path%", "messages"),
-                plugin.getConfigYaml().getInt("menu.texts-menu.rows"),
-                index);
+    private int page;
+
+    public MessagesEditMenu(SimpleCoupons plugin, List<Object> index, Coupon coupon, int page) {
+        super(plugin.getConfigYaml().getString("menu.texts-menu.title", new String[][]{{"%path%", "messages"}}), 3);
         this.plugin = plugin;
         this.coupon = coupon;
-    }
-
-    @Override
-    public ItemStack getListedItem(Object object) {
-        if(object != null){
-            NBTItem nbtItem = new NBTItem(Yaml.replace(plugin.getConfigYaml().getItemStack("menu.texts-menu.items.messages"),
-                    new String[][]{{"%message%", coupon.getMessages().get((int) object)}}));
-            nbtItem.setInteger("message-index", (Integer) object);
-            return nbtItem.getItem();
+        this.page = page;
+        fillItem(() -> plugin.getConfigYaml().getItemStack("menu.list.items.fill"));
+        addItem(22, () -> plugin.getConfigYaml().getItemStack("menu.list.items.close"));
+        addLeftAction(22, (player, slot) -> player.closeInventory());
+        int itemSlot = 0;
+        for (int i = 9 * page; i < index.size() && i < 9 * page + 8; i++) {
+            int finalI = i;
+            addItem(9 + itemSlot, () -> getListedItem(finalI));
+            addLeftAction(9 + itemSlot, (player, slot) -> onLeftClick(player, finalI));
+            addMiddleAction(9 + itemSlot, (player, slot) -> onMiddleClick(player, finalI));
+            addRightAction(9 + itemSlot, (player, slot) -> onRightClick(player, finalI));
+            itemSlot++;
         }
-        return null;
+        if (page > 0) {
+            addItem(26, () -> plugin.getConfigYaml().getItemStack("menu.list.items.previous-page"));
+            addLeftAction(26, (player, slot) -> plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(plugin, index, coupon, page - 1)));
+        }
+        if (index.size() >= 9 * page + 9) {
+            addItem(26, () -> plugin.getConfigYaml().getItemStack("menu.list.items.next-page"));
+            addLeftAction(26, (player, slot) -> plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(plugin, index, coupon, page + 1)));
+        }
     }
 
-    @Override
-    public ItemStack getPanel(){
-        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
+    public ItemStack getListedItem(int i) {
+        NBTItem nbtItem = new NBTItem(Yaml.replace(this.plugin.getConfigYaml().getItemStack("menu.texts-menu.items.messages"), new String[][]{{"%message%", this.coupon
+                .getMessages().get(i)}}));
+        nbtItem.setInteger("message-index", Integer.valueOf(i));
+        return nbtItem.getItem();
     }
 
-    @Override
-    public ItemStack getInformation() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.fill");
-    }
-
-    @Override
-    public ItemStack getPrevious() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.previous-page");
-    }
-
-    @Override
-    public ItemStack getNext() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.next-page");
-    }
-
-    @Override
-    public ItemStack getClose() {
-        return plugin.getConfigYaml().getItemStack("menu.list.items.close");
-    }
-
-    @Override
-    public void onRightClick(Player player, Object object) {
-        int index = (int) object;
-        List<String> messages = coupon.getMessages();
-        if(index+1 < messages.size()) {
+    public void onRightClick(Player player, int index) {
+        List<String> messages = this.coupon.getMessages();
+        if (index + 1 < messages.size()) {
             String line = messages.get(index);
             String line2 = messages.get(index + 1);
             messages.set(index + 1, line);
             messages.set(index, line2);
-            coupon.setMessages(messages);
-            plugin.getCouponManager().saveCoupon(coupon);
-            List<Object> indexList = new ArrayList<>();
-            for (int i = 0; i < coupon.getMessages().size(); i++) {
-                indexList.add(i);
-            }
+            this.coupon.setMessages(messages);
+            this.plugin.getCouponManager().saveCoupon(this.coupon);
+            List<Object> indexList = new ArrayList();
+            for (int i = 0; i < this.coupon.getMessages().size(); i++)
+                indexList.add(Integer.valueOf(i));
             player.closeInventory();
-            plugin.getMenuInventoryManager().openInventory(player, new MessagesEditMenu(plugin, indexList, coupon));
+            this.plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(this.plugin, indexList, this.coupon, this.page));
         }
     }
 
-    @Override
-    public void onLeftClick(Player player, Object object) {
-        int index = (int) object;
-        List<String> messages = coupon.getMessages();
-        if(index >= 1){
+    public void onLeftClick(Player player, int index) {
+        List<String> messages = this.coupon.getMessages();
+        if (index >= 1) {
             String line = messages.get(index);
-            String line2 = messages.get(index-1);
-            messages.set(index-1, line);
+            String line2 = messages.get(index - 1);
+            messages.set(index - 1, line);
             messages.set(index, line2);
-            coupon.setMessages(messages);
-            plugin.getCouponManager().saveCoupon(coupon);
-            List<Object> indexList = new ArrayList<>();
-            for(int i = 0; i < messages.size(); i++){
-                indexList.add(i);
-            }
+            this.coupon.setMessages(messages);
+            this.plugin.getCouponManager().saveCoupon(this.coupon);
+            List<Object> indexList = new ArrayList();
+            for (int i = 0; i < messages.size(); i++)
+                indexList.add(Integer.valueOf(i));
             player.closeInventory();
-            if(indexList.size() == 0){
-                plugin.getMenuInventoryManager().openInventory(player, new EditMenu(plugin, coupon));
-            }else{
-                plugin.getMenuInventoryManager().openInventory(player, new MessagesEditMenu(plugin, indexList, coupon));
+            if (indexList.isEmpty()) {
+                this.plugin.getInventoryManager().openInventory(player, new EditMenu(this.plugin, this.coupon));
+            } else {
+                this.plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(this.plugin, indexList, this.coupon, this.page));
             }
         }
     }
 
-    @Override
-    public void onMiddleClick(Player player, Object object) {
-        int messageIndex = (int) object;
-        coupon.getMessages().remove(messageIndex);
-        plugin.getCouponManager().saveCoupon(coupon);
-        List<Object> indexList = new ArrayList<>();
-        for(int i = 0; i < coupon.getMessages().size(); i++){
-            indexList.add(i);
-        }
+    public void onMiddleClick(Player player, int messageIndex) {
+        this.coupon.getMessages().remove(messageIndex);
+        this.plugin.getCouponManager().saveCoupon(this.coupon);
+        List<Object> indexList = new ArrayList();
+        for (int i = 0; i < this.coupon.getMessages().size(); i++)
+            indexList.add(Integer.valueOf(i));
         player.closeInventory();
-        plugin.getMenuInventoryManager().openInventory(player, new MessagesEditMenu(plugin, indexList, coupon));
+        this.plugin.getInventoryManager().openInventory(player, new MessagesEditMenu(this.plugin, indexList, this.coupon, this.page));
     }
 }

@@ -27,18 +27,19 @@ import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.coupon.CouponManager;
 import org.kayteam.simplecoupons.inventories.EditMenu;
 import org.kayteam.simplecoupons.util.Color;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class Command_Create {
-    private SimpleCoupons plugin;
+    private final SimpleCoupons plugin;
 
     public Command_Create(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void createCoupon(Player player, String couponName){
-        if(!plugin.getCouponManager().getCoupons().containsKey(couponName)){
+    public void createCoupon(Player player, String couponName) {
+        if (!this.plugin.getCouponManager().getCoupons().containsKey(couponName)) {
             Coupon coupon = new Coupon(couponName);
-            CouponManager couponManager = plugin.getCouponManager();
+            CouponManager couponManager = this.plugin.getCouponManager();
             ItemStack couponItem = new ItemStack(Material.STONE);
             ItemMeta itemMeta = couponItem.getItemMeta();
             itemMeta.setDisplayName(Color.convert("&7&oDefault Coupon"));
@@ -46,9 +47,9 @@ public class Command_Create {
             coupon.setCouponItem(couponItem);
             couponManager.saveCoupon(coupon);
             couponManager.getCoupons().put(couponName, coupon);
-            plugin.getMenuInventoryManager().openInventory(player, new EditMenu(plugin, coupon));
-        }else{
-            plugin.getMessagesYaml().sendMessage(player, "coupon.already-exist");
+            this.plugin.getInventoryManager().openInventory(player, new EditMenu(this.plugin, coupon));
+        } else {
+            Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("coupon.already-exist"));
         }
     }
 }

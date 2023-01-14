@@ -20,26 +20,23 @@ package org.kayteam.simplecoupons.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class Command_Give {
-
     private SimpleCoupons plugin;
 
     public Command_Give(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void giveCoupon(CommandSender sender, String target, String couponName, int amount){
-        if(Bukkit.getServer().getPlayer(target) != null){
-            if(plugin.getCouponManager().getCoupons().containsKey(couponName)){
-                for(int i = 0; i<amount; i++){
-                    plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
-                }
-            }else{
-                plugin.getMessagesYaml().sendMessage(sender, "coupon.invalid");
+    public void giveCoupon(CommandSender sender, String target, String couponName, int amount) {
+        if (Bukkit.getServer().getPlayer(target) != null)
+            if (this.plugin.getCouponManager().getCoupons().containsKey(couponName)) {
+                for (int i = 0; i < amount; i++)
+                    this.plugin.getCouponManager().giveCoupon(couponName, Bukkit.getServer().getPlayer(target));
+            } else {
+                Yaml.sendSimpleMessage(sender, this.plugin.getMessagesYaml().get("coupon.invalid"));
             }
-        }
     }
 }

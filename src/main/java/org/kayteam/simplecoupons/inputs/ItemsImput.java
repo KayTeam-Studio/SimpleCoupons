@@ -20,58 +20,36 @@ package org.kayteam.simplecoupons.inputs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.kayteam.inputapi.inputs.DropInput;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.inventoryitems.InventoryItems;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class ItemsImput {
+    public SimpleCoupons plugin;
 
-    private SimpleCoupons plugin;
-    private Coupon coupon;
+    private final Coupon coupon;
 
     public ItemsImput(SimpleCoupons plugin, Coupon coupon) {
         this.plugin = plugin;
         this.coupon = coupon;
     }
 
-    public void addItemsInput(Player player){
+    public void addItemsInput(Player player) {
         player.closeInventory();
-        Inventory inventory = Bukkit.createInventory(null, 54, plugin.getConfigYaml().getString("menu.items.title"));
-        if(coupon.getItems().size()>0){
-            for(ItemStack item : coupon.getItems()){
-                if(item != null){
-                    inventory.addItem(item);
-                }
+        Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("edit.item"), new String[][]{{"%path%", this.coupon
+                .getName() + "/itemRewards"}, {"%value%", "valid item"}});
+        this.plugin.getInputManager().addInput(player, new DropInput() {
+            public void onPLayerDrop(Player player, ItemStack itemStack) {
+                ItemsImput.this.coupon.getItems().add(itemStack);
+                ItemsImput.this.plugin.getCouponManager().saveCoupon(ItemsImput.this.coupon);
+                Bukkit.getScheduler().runTaskLater(ItemsImput.this.plugin, () -> ItemsImput.this.plugin.getServer().dispatchCommand(player, "sc edit " + ItemsImput.this.coupon.getName()), 3L);
             }
-        }
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                player.openInventory(inventory);
+
+            public void onPlayerSneak(Player player) {
+                Bukkit.getScheduler().runTaskLater(ItemsImput.this.plugin, () -> ItemsImput.this.plugin.getServer().dispatchCommand(player, "sc edit " + ItemsImput.this.coupon.getName()), 3L);
             }
-        }, 1);
-        plugin.getInventoryItemsManager().addInteract(player, new InventoryItems() {
-            @Override
-            public boolean onInventoryClose(Player player, Inventory input) {
-                coupon.getItems().clear();
-                for(ItemStack item : input.getContents()){
-                    if(item != null){
-                        if(!item.getType().isAir()){
-                            coupon.getItems().add(item);
-                        }
-                    }
-                }
-                plugin.getCouponManager().saveCoupon(coupon);
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                    }
-                }, 3);
-                return true;
-            }
-        }, true);
+        });
     }
 }

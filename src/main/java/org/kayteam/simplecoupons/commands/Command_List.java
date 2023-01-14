@@ -20,24 +20,16 @@ package org.kayteam.simplecoupons.commands;
 
 import org.bukkit.entity.Player;
 import org.kayteam.simplecoupons.SimpleCoupons;
-import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.inventories.CouponsMenu;
-import org.kayteam.simplecoupons.util.Yaml;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public class Command_List {
-
-    private SimpleCoupons plugin;
+    private final SimpleCoupons plugin;
 
     public Command_List(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void sendCouponList(Player player){
-        plugin.getMenuInventoryManager().openInventory(player, new CouponsMenu(plugin));
+    public void sendCouponList(Player player) {
+        this.plugin.getInventoryManager().openInventory(player, new CouponsMenu(this.plugin, 0));
     }
 }

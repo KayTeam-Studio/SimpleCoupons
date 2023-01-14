@@ -23,18 +23,18 @@ import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
 import org.kayteam.simplecoupons.inventories.EditMenu;
 
-public class Command_Edit {
 
+public class Command_Edit {
     private final SimpleCoupons plugin;
 
     public Command_Edit(SimpleCoupons plugin) {
         this.plugin = plugin;
     }
 
-    public void editCoupon(Player player, Coupon coupon){
-        if(coupon!=null){
+    public void editCoupon(Player player, Coupon coupon) {
+        if (coupon != null) {
             player.closeInventory();
-            plugin.getMenuInventoryManager().openInventory(player, new EditMenu(plugin, coupon));
+            this.plugin.getInventoryManager().openInventory(player, new EditMenu(this.plugin, coupon));
         }
     }
 }

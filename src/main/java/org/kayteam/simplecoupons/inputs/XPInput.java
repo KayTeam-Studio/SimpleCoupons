@@ -20,51 +20,38 @@ package org.kayteam.simplecoupons.inputs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.kayteam.inputapi.inputs.ChatInput;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.chat.ChatInput;
-
-import java.util.HashMap;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class XPInput {
+    private final SimpleCoupons plugin;
 
-    private SimpleCoupons plugin;
-    private Coupon coupon;
+    private final Coupon coupon;
 
     public XPInput(SimpleCoupons plugin, Coupon coupon) {
         this.plugin = plugin;
         this.coupon = coupon;
     }
 
-    public void addXPInput(Player player){
-        plugin.getChatInputManager().addChatInput(player, new ChatInput(new HashMap<>()) {
-            @Override
+    public void addXPInput(Player player) {
+        Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("edit.chat"), new String[][]{{"%path%", this.coupon.getName() + "/xp"}, {"%value%", "valid number"}});
+        this.plugin.getInputManager().addInput(player, new ChatInput() {
             public boolean onChatInput(Player player, String input) {
-                try{
-                    coupon.setXp(Integer.parseInt(input));
-                    plugin.getCouponManager().saveCoupon(coupon);
-                    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                        }
-                    }, 1);
+                try {
+                    XPInput.this.coupon.setXp(Integer.parseInt(input));
+                    XPInput.this.plugin.getCouponManager().saveCoupon(XPInput.this.coupon);
+                    Bukkit.getScheduler().runTaskLater(XPInput.this.plugin, () -> XPInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + XPInput.this.coupon.getName()), 1L);
                     return true;
-                }catch (Exception e){
-                    plugin.getMessagesYaml().sendMessage(player, "edit.chat",
-                            new String[][]{{"%path%", coupon.getName()+"/xp"}, {"%value%", "valid number"}});
+                } catch (Exception e) {
+                    Yaml.sendSimpleMessage(player, XPInput.this.plugin.getMessagesYaml().get("edit.chat"), new String[][]{{"%path%", coupon.getName() + "/xp"}, {"%value%", "valid number"}});
                     return false;
                 }
             }
 
-            @Override
             public void onPlayerSneak(Player player) {
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                    }
-                }, 1);
+                Bukkit.getScheduler().runTaskLater(XPInput.this.plugin, () -> XPInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + XPInput.this.coupon.getName()), 1L);
             }
         });
     }

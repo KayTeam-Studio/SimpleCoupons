@@ -20,53 +20,42 @@ package org.kayteam.simplecoupons.inputs;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.kayteam.inputapi.inputs.ChatInput;
 import org.kayteam.simplecoupons.SimpleCoupons;
 import org.kayteam.simplecoupons.coupon.Coupon;
-import org.kayteam.simplecoupons.util.chat.ChatInput;
-
-import java.util.HashMap;
+import org.kayteam.storageapi.storage.Yaml;
 
 public class PermissionInput {
+    private final SimpleCoupons plugin;
 
-    private SimpleCoupons plugin;
-
-    private Coupon coupon;
+    private final Coupon coupon;
 
     public PermissionInput(SimpleCoupons plugin, Coupon coupon) {
         this.plugin = plugin;
         this.coupon = coupon;
     }
 
-    public void addPermissionInput(Player player){
-        plugin.getChatInputManager().addChatInput(player, new ChatInput(new HashMap<>()) {
-            @Override
+    public void addPermissionInput(Player player) {
+        Yaml.sendSimpleMessage(player, this.plugin.getMessagesYaml().get("edit.chat"), new String[][]{{"%path%", this.coupon
+                .getName() + "/permission"}, {"%value%", "valid permission"}});
+        this.plugin.getInputManager().addInput(player, new ChatInput() {
             public boolean onChatInput(Player player, String input) {
-                try{
-                    coupon.setPermission(input);
-                    plugin.getCouponManager().saveCoupon(coupon);
-                    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                        @Override
-                        public void run() {
-                            plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                        }
-                    }, 1);
+                try {
+                    PermissionInput.this.coupon.setPermission(input);
+                    PermissionInput.this.plugin.getCouponManager().saveCoupon(PermissionInput.this.coupon);
+                    Bukkit.getScheduler().runTaskLater(PermissionInput.this.plugin, () -> PermissionInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + PermissionInput.this.coupon.getName()), 1L);
                     return true;
-                }catch (Exception e){
-                    plugin.getMessagesYaml().sendMessage(player, "edit.chat",
-                            new String[][]{{"%path%", coupon.getName()+"/permission"}, {"%value%", "valid permission"}});
+                } catch (Exception e) {
+                    Yaml.sendSimpleMessage(player, PermissionInput.this.plugin.getMessagesYaml().get("edit.chat"), new String[][]{{"%path%",
+                            coupon.getName() + "/permission"}, {"%value%", "valid permission"}});
                     return false;
                 }
             }
 
-            @Override
             public void onPlayerSneak(Player player) {
-                Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        plugin.getServer().dispatchCommand(player, "sc edit "+coupon.getName());
-                    }
-                }, 1);
+                Bukkit.getScheduler().runTaskLater(PermissionInput.this.plugin, () -> PermissionInput.this.plugin.getServer().dispatchCommand(player, "sc edit " + PermissionInput.this.coupon.getName()), 1L);
             }
         });
     }
 }
+

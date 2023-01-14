@@ -1,44 +1,49 @@
 menu:
   list:
     title: "Coupon List"
-    rows: 1
     items:
       fill:
         material: GRAY_STAINED_GLASS_PANE
-        display-name: "&f"
+        amount: 1
+        name: "&f"
       close:
         material: BARRIER
-        display-name: "&cClose menu"
+        amount: 1
+        name: "&cClose menu"
         lore:
           - '&f'
           - ' &f- &7Left Click to close menu'
       information:
         material: PAPER
-        display-name: "&6Information"
+        amount: 1
+        name: "&6Information"
         lore:
           - '&f'
-          - ' &f» &aCoupons: &2%coupons_amount%'
+          - ' &f&aCoupons: &2%coupons_amount%'
       coupon:
         material: MAP
-        display-name: "&9%coupon_name%"
+        amount: 1
+        name: "&9%coupon_name%"
         lore:
           - '&f'
-          - ' &f» &aMoney: &2%coupon_money%'
-          - ' &f» &aXP: &2%coupon_xp%'
-          - ' &f» &aItems: &2%coupon_items%'
-          - ' &f» &aMessages: &2%coupon_messages%'
-          - ' &f» &aCommands: &2%coupon_commands%'
-          - ' &f» &aPermission: &2%coupon_permission%'
-          - ' &f» &aMax uses: &2%coupon_max_uses%'
+          - ' &f&aMoney: &2%coupon_money%'
+          - ' &f&aXP: &2%coupon_xp%'
+          - ' &f&aItems: &2%coupon_items%'
+          - ' &f&aMessages: &2%coupon_messages%'
+          - ' &f&aCommands: &2%coupon_commands%'
+          - ' &f&aPermission: &2%coupon_permission%'
+          - ' &f&aMax uses: &2%coupon_max_uses%'
           - '&f'
           - ' &f- &7Left Click to get coupon'
           - ' &f- &7Right Click to edit coupon'
       next-page:
         material: ARROW
-        display-name: "&6Next page"
+        amount: 1
+        name: "&6Next page"
       previous-page:
         material: ARROW
-        display-name: "&6Previous page"
+        amount: 1
+        name: "&6Previous page"
         lore:
           - '&f'
           - ' &f- &7Left Click to g'
@@ -47,72 +52,81 @@ menu:
     items:
       close:
         material: BARRIER
-        display-name: "&cClose"
+        amount: 1
+        name: "&cClose"
         lore:
           - "&f"
           - " &f- &7Left Click to close menu"
       delete:
         material: REDSTONE_BLOCK
-        display-name: "&4Delete Coupon"
+        amount: 1
+        name: "&4Delete Coupon"
         lore:
           - "&f"
           - " &f- &7Left Click to delete coupon"
       money:
         material: GOLD_INGOT
-        display-name: "&6Change money reward"
+        amount: 1
+        name: "&6Change money reward"
         lore:
           - "&f"
-          - " &f» &aActual reward: &2%coupon_money%"
+          - " &f&aActual reward: &2%coupon_money%"
           - "&f"
           - " &f- &7Left Click to change amount"
       xp:
         material: EXPERIENCE_BOTTLE
-        display-name: "&6Change XP reward"
+        amount: 1
+        name: "&6Change XP reward"
         lore:
           - "&f"
-          - " &f» &aActual reward: &2%coupon_xp%"
+          - " &f&aActual reward: &2%coupon_xp%"
           - "&f"
           - " &f- &7Left Click to change amount"
       items:
         material: CHEST
-        display-name: "&6Change item rewards"
+        amount: 1
+        name: "&6Change item rewards"
         lore:
           - "&f"
-          - " &f» &aActual amount: &2%coupon_items%"
+          - " &f&aActual amount: &2%coupon_items%"
           - "&f"
           - " &f- &7Left Click to change items"
       messages:
         material: PAPER
-        display-name: "&6Change reward messages"
+        amount: 1
+        name: "&6Change reward messages"
         lore:
           - "&f"
-          - " &f» &aActual amount: &2%coupon_messages%"
+          - " &f&aActual amount: &2%coupon_messages%"
           - "&f"
           - " &f- &7Left Click to add message"
           - " &f- &7Right Click to change position"
       commands:
         material: COMMAND_BLOCK
-        display-name: "&6Change reward commands"
+        amount: 1
+        name: "&6Change reward commands"
         lore:
           - "&f"
-          - " &f» &aActual amount: &2%coupon_commands%"
+          - " &f&aActual amount: &2%coupon_commands%"
           - "&f"
           - " &f- &7Left Click to add command"
           - " &f- &7Right Click to change position"
       permission:
         material: NAME_TAG
-        display-name: "&6Change coupon permission"
+        amount: 1
+        name: "&6Change coupon permission"
         lore:
           - "&f"
-          - " &f» &aActual permission: &2%coupon_permission%"
+          - " &f&aActual permission: &2%coupon_permission%"
           - "&f"
           - " &f- &7Left Click to change permission"
       max-uses:
         material: BOOK
-        display-name: "&6Change coupon max uses"
+        amount: 1
+        name: "&6Change coupon max uses"
         lore:
           - "&f"
-          - " &f» &aActual max uses: &2%coupon_max_uses%"
+          - " &f&aActual max uses: &2%coupon_max_uses%"
           - "&f"
           - " &f- &7Left Click to change max uses"
 
@@ -120,11 +134,11 @@ menu:
     title: "Put all item rewards"
   texts-menu:
     title: "Editing &o%path%"
-    rows: 1
     items:
       messages:
         material: PAPER
-        display-name: "&6%message%"
+        amount: 1
+        name: "&6%message%"
         lore:
           - "&f"
           - " &f- &7Left Click move to left"
@@ -132,7 +146,8 @@ menu:
           - " &f- &7Right Click move to right"
       commands:
         material: COMMAND_BLOCK
-        display-name: "&6%command%"
+        amount: 1
+        name: "&6%command%"
         lore:
           - "&f"
           - " &f- &7Left Click move to left"
@@ -143,23 +158,26 @@ menu:
     items:
       coupon:
         material: MAP
-        display-name: "&9%coupon_name%"
+        amount: 1
+        name: "&9%coupon_name%"
         lore:
           - '&f'
-          - ' &f» &aMoney: &2%coupon_money%'
-          - ' &f» &aXP: &2%coupon_xp%'
-          - ' &f» &aItems: &2%coupon_items%'
-          - ' &f» &aMessages: &2%coupon_messages%'
-          - ' &f» &aCommands: &2%coupon_commands%'
+          - ' &f&aMoney: &2%coupon_money%'
+          - ' &f&aXP: &2%coupon_xp%'
+          - ' &f&aItems: &2%coupon_items%'
+          - ' &f&aMessages: &2%coupon_messages%'
+          - ' &f&aCommands: &2%coupon_commands%'
       confirm:
         material: GREEN_WOOL
-        display-name: "&aDelete Coupon"
+        amount: 1
+        name: "&aDelete Coupon"
         lore:
           - "&f"
           - " &f- &7Left Click to confirm"
       cancel:
         material: RED_WOOL
-        display-name: "&cCancel"
+        amount: 1
+        name: "&cCancel"
         lore:
           - "&f"
           - " &f- &7Left Click to cancel"
